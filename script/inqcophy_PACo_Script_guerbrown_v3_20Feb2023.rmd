@@ -17,6 +17,7 @@ library(ape)
 library(vegan)
 library(phytools)
 library(plotrix)
+library(svglite)
 ```
 
 #Import and prune the Synergus tree
@@ -64,14 +65,15 @@ h$tip.label <- tiplabel_gall
 assoc <- read.csv("~/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_AssociationMatrix_v6_guerbrown_20Feb2023.csv")
 hp <- as.data.frame.matrix(assoc)
 cophy <- cophylo(h, p, hp)
-plot(cophy, link.type = "straight" ,link.lwd=4,
+cophy_plot <- plot(cophy, link.type = "straight" ,link.lwd=4,
      link.lty="solid",link.col=make.transparent("black",
      0.2))
+svg("~/githublocal/inqcophy_PACo_
 ```
 
 ### Change the two column association matrix into a binary association matrix. This is neccessary to calculate principle coordinates in the statistical section.
 
-# PACo
+## PACo
 ### Calculate the statistical numeric underlying cophylogeny. Permutations = 10,000
 
 ```{r}
@@ -81,7 +83,6 @@ p_dist <- cophenetic(p)
 D <- prepare_paco_data(h_dist, p_dist, hp_binary)
 D <- add_pcoord(D)
 D <- PACo(D, nperm=1000, seed = NA, method= "r0", proc.warning = F)
-print(D$gof)
 ```
 ### At 10k perm.
 ####$p

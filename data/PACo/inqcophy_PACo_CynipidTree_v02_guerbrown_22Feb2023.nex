@@ -1,0 +1,55 @@
+#NEXUS
+[R-package APE, Wed Feb 22 11:47:09 2023]
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 21;
+	TAXLABELS
+		Disholcaspis_quercusglobulus
+		Disholcaspis_quercusmamma
+		Acraspis_villosa
+		Acraspis_quercushirta
+		Acraspis_pezomachoides
+		Acraspis_erinacei
+		Druon_ignotum
+		Druon_quercuslanigerum
+		Cynips_conspicuus
+		Philonix_fulvicollis
+		Atrusca_quercuscentricola
+		Belonocnema_kinseyi
+		Andricus_quercusstrobilanus
+		Andricus_pisiformis
+		Andricus_kingii
+		Callirhytis_quercuspunctata
+		Callirhytis_quercusventricosa
+		Dryocosmus_minusculus
+		Amphibolips_quercusostensackenii
+		Amphibolips_quercusjuglans
+		Amphibolips_cookii
+	;
+END;
+BEGIN TREES;
+	TRANSLATE
+		1	Disholcaspis_quercusglobulus,
+		2	Disholcaspis_quercusmamma,
+		3	Acraspis_villosa,
+		4	Acraspis_quercushirta,
+		5	Acraspis_pezomachoides,
+		6	Acraspis_erinacei,
+		7	Druon_ignotum,
+		8	Druon_quercuslanigerum,
+		9	Cynips_conspicuus,
+		10	Philonix_fulvicollis,
+		11	Atrusca_quercuscentricola,
+		12	Belonocnema_kinseyi,
+		13	Andricus_quercusstrobilanus,
+		14	Andricus_pisiformis,
+		15	Andricus_kingii,
+		16	Callirhytis_quercuspunctata,
+		17	Callirhytis_quercusventricosa,
+		18	Dryocosmus_minusculus,
+		19	Amphibolips_quercusostensackenii,
+		20	Amphibolips_quercusjuglans,
+		21	Amphibolips_cookii
+	;
+	TREE * UNTITLED = [&R] (((((((1:0.002602,2:0.001772):0.01234,(3:0.005605,(4:0.004289,(5:0.001514,6:0.001876):0.004088):0.000407):0.008861):0.002169,(7:0.005878,8:0.009021):0.011506):0.006104,((9:0.008734,10:0.009881):0.002656,(11:0.016307,12:0.020788):0.000447):0.008001):0.008763,(13:0.020523,14:0.010582):0.005882):0.002683,15:0.020736):0.002237,((16:0.028913,17:0.016751):0.002467,(18:0.022223,(19:0.018567,(20:0.015989,21:0.013262):0.010318):0.007775):0.000873):0.001161);
+END;

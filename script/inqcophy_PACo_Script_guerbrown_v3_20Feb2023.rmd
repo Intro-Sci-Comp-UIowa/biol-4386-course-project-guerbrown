@@ -1,0 +1,193 @@
+---
+title: "Synergus PACo Script"
+author: "G. Brown"
+date: "2023-02-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### The following code was designed to complete a procrustean analysis of cophylogeny using Synergus inquilines and their hosts in Cynipidae. Synergus trees were made with concatenated data of ultra conserved elements (UCE) and CO1 (made by A. Forbes and M. Zhang). Species were chosen based on conservative estimates (Ward et al., 2023; manuscript in preperation). 
+
+### Set files
+
+```{r}
+parasitetree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/inqcophy_PACo_UCECO1SynTree_v02_guerbrown_22Feb2023.nex"
+hosttree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/inqcophy_PACo_CynipidTree_v02_guerbrown_22Feb2023.nex"
+assocdata <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_AssociationMatrix_guerbrown_v6_20Feb2023.csv"
+```
+
+```{r Library Chunk}
+library(paco)
+library(ape)
+library(vegan)
+library(phytools)
+library(plotrix)
+library(svglite)
+```
+
+# Import and prune the Synergus tree
+
+```{r Synergus Import and Pruning, error = T}
+p <- readNexus(parasitetree)
+tiplabel_syn <- c("Synergus_sp.6", "S._punctatus_A", "S._campanula_A", "Synergus_sp.3", "Synergus_sp.7", "Synergus_sp.8",
+                   "S._walshii_A", "S._erinacei_A", "S._erinacei_B", "S._villosus", "S._magnus", "Synergus_sp.2",
+                   "S._ochreus", "S._oneratus_A", "S._oneratus_B", "S._oneratus_C", "S._coniferae", "S._lignicola",
+                   "S._laeviventris_A", "S._laeviventris_B", "S._laeviventris_C")
+p$tip.label <- tiplabel_syn
+root.phylo(p, 1, resolve.root = T)
+plot.phylo(p, align.tip.label = T, use.edge.length = F, root.edge = T)
+```
+
+# Import and prune Cynipidae tree
+
+```{r Cynipid Import and Pruning, error = T}
+h <- read.nexus(hosttree)
+tiplabel_gall <- c("Disholcaspis_quercusglobulus", "Disholcaspis_quercusmamma", "Acraspis_villosa", "Acraspis_quercushirta", "Acraspis_pezomachoides", "Acraspis_erinacei", "Druon_ignotum", "Druon_quercuslanigerum", "Cynips_conspicuus","Philonix_fulvicollis", "Atrusca_quercuscentricola", "Belonocnema_kinseyi", "Andricus_quercusstrobilanus", "Andricus_pisiformis", "Andricus_kingii", "Callirhytis_quercuspunctata", "Callirhytis_quercusventricosa", "Dryocosmus_minusculus", "Amphibolips_quercusostensackenii", "Amphibolips_quercusjuglans", "Amphibolips_cookii")
+h$tip.label <- tiplabel_gall
+root.phylo(h, 1, resolve.root = T)
+plot.phylo(h, align.tip.label = T, use.edge.length = F, root.edge = T)
+```
+
+# Associations
+
+```{r}
+assoc <- read.table(assocdata, header = T, sep = ",")
+hp <- as.data.frame.matrix(assoc)
+cophy <- cophylo(h, p, hp)
+cophy_plot <- plot(cophy, link.type = "straight" ,link.lwd=4,
+     link.lty="solid",link.col=make.transparent("black",
+     0.2))
+```
+
+### Change the two column association matrix into a binary association matrix. This is neccessary to calculate principle coordinates in the statistical section.
+
+## PACo
+### Calculate the statistical numeric underlying cophylogeny. Permutations = 10,000
+
+```{r}
+hp_binary <- table(hp)
+h_dist <- cophenetic(h)
+p_dist <- cophenetic(p)
+D <- prepare_paco_data(h_dist, p_dist, hp_binary)
+D <- add_pcoord(D)
+D <- PACo(D, nperm=1000, seed = NA, method= "r0", proc.warning = F)
+```
+### At 10k perm.
+####$p
+####[1] 0
+
+####$ss
+####[1] 0.02584893
+
+####$n
+####[1] 1000
+
+
+
+### Residuals
+
+```{r}
+residuals_paco(D$proc)
+```
+
+# Graphics
+
+```{r eval=FALSE, include=FALSE}
+h$tip.label <- gsub("_", " ", h$tip.label)
+p$tip.label <- gsub("_", " ", p$tip.label)
+hp$Gallers <- sub("_", " ", hp$Galler)
+hp$Synergus <- sub("_", " ", hp$Synergus)
+cophyloplot(h, p, hp, show.tip.label = T, use.edge.length = F,
+lwd = 4, col = make.transparent("black", 0.3), font = 3,
+length.line = 0, gap = 1, space = 135, rotate = F)
+text(5,19.7, "Cynipidae", cex = 1.2)
+text(168, 20.20, "Synergus", cex = 1.2)
+```
+
+### Note to Andrew: I need to add labels to this Procrustes plot. That'll probably be my next mission.
+
+```{r}
+HP.proc <- procrustes(D$H_PCo, D$P_PCo)
+HostX <- HP.proc$X
+ParY <- HP.proc$Yrot
+plot(HostX, asp=1, pch=120)
+points(ParY, pch=1)
+arrows(ParY[,1], ParY[,2], HostX[,1], HostX[,2], length=0.12, angle=15,
+xpd=FALSE)
+HostX <- unique(HP.proc$X)
+ParY <- unique(HP.proc$Yrot)
+identify(ParY[,1], ParY[,2], rownames(ParY), offset=0.3, xpd=F, cex=0.8)
+identify(HostX[,1], HostX[,2], rownames(HostX),offset=0.3, xpd=T, cex= 0.8) 
+```
+
+### Barplot of links.
+
+```{r}
+NLinks = 25
+SQres <- sort(residuals_paco(D$proc))
+SQres.jackn <- SQres**2
+SQres <- (residuals (HP.proc)**2)
+SQres.jackn <- SQres.jackn*(-(NLinks-1))
+SQres.jackn <- SQres.jackn*-1
+SQres <- SQres*NLinks
+SQres <- as.matrix(SQres)
+SQres.jackn <- as.data.frame(SQres.jackn)
+SQres.jackn <- t(apply(SQres.jackn, 1, "+", SQres))
+phi.mean <- apply(SQres.jackn, 2, mean, na.rm = TRUE)
+phi.UCI <- apply(SQres.jackn, 2, sd, na.rm = TRUE)
+t.critical = qt(0.975, NLinks-1) 
+phi.UCI <- phi.mean + t.critical * phi.UCI/sqrt(NLinks)
+phi.UCI
+par(mar = c(7, 5, 3, 6))
+pat.bar <- barplot(sort(phi.mean), names.arg = "", space = 0.2, col="white", ylab= "Squared residuals", ylim=c(0, max(phi.UCI)),cex.lab=1.2)
+segments(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5)
+arrows(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5, angle = 90, code = 3, length = 0.05)
+abline(a=median(phi.mean), b=0, lty=2) 
+text(pat.bar, par("usr")[3] - 0.001, srt = 330, adj = 0, labels = rownames(SQres.jackn), xpd = TRUE, font = 1, cex=1.2, las = 1)
+text(22.32, 0.05, '*', cex = 3)
+text(25.93, 0.053, '*', cex = 3)
+
+```
+
+### Significance of squared residuals using parafit link
+### Lingoes: In the Lingoes (1971) procedure, a constant c1, equal to twice absolute value of the largest negative value of the original principal coordinate analysis, is added to each original squared distance in the distance matrix, except the diagonal values. A new principal coordinate analysis, performed on the modified distances, has at most (n-2) positive eigenvalues, at least 2 null eigenvalues, and no negative eigenvalue.
+
+### Cailliez: In the Cailliez (1983) procedure, a constant c2 is added to the original distances in the distance matrix, except the diagonal values. The calculation of c2 is described in Legendre and Legendre (1998). A new principal coordinate analysis, performed on the modified distances, has at most (n-2) positive eigenvalues, at least 2 null eigenvalues, and no negative eigenvalue.
+
+## Note to Andrew: Calliez and Lingoes corrections add a constant to each value that negates negative eigenvalues. This is to make sure all values can be plotted in real space but it can inflate the final statistics. So, Hutchinson et al.,2017 recommended taking the square root of the eigenvalues to convert everything to positive. I've included both here. We can discuss which one is a better fit for our analysis later.
+
+### Sqrt of eigenvalues manual correction
+
+```{r}
+h_matrix <- compute.mr(h)
+h_df <- as.data.frame(h_matrix)
+host.D <- cophenetic(h)
+para.D <- cophenetic(p)
+parafit <- parafit(sqrt(host.D), sqrt(para.D), hp_binary, test.links = T, correction = "none", nperm = 10000)
+print(parafit)
+```
+
+### Cailliez Correction
+
+```{r}
+parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "cailliez", nperm = 10000)
+print(parafit)
+```
+
+### Lingoes correction
+
+```{r}
+parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "lingoes", nperm = 10000)
+print(parafit)
+```
+
+
+
+
+
+
+
+

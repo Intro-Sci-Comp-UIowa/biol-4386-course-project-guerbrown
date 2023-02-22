@@ -54,7 +54,7 @@ plot.phylo(h, align.tip.label = T, use.edge.length = F, root.edge = T)
 # Associations
 
 ```{r}
-assoc <- read.table(assocdata)
+assoc <- read.table(assocdata, header = T, sep = ",")
 hp <- as.data.frame.matrix(assoc)
 cophy <- cophylo(h, p, hp)
 cophy_plot <- plot(cophy, link.type = "straight" ,link.lwd=4,
@@ -101,7 +101,7 @@ p$tip.label <- gsub("_", " ", p$tip.label)
 hp$Gallers <- sub("_", " ", hp$Galler)
 hp$Synergus <- sub("_", " ", hp$Synergus)
 cophyloplot(h, p, hp, show.tip.label = T, use.edge.length = F,
-lwd = weight4, col = make.transparent("black", 0.3), font = 3,
+lwd = 4, col = make.transparent("black", 0.3), font = 3,
 length.line = 0, gap = 1, space = 135, rotate = F)
 text(5,19.7, "Cynipidae", cex = 1.2)
 text(168, 20.20, "Synergus", cex = 1.2)

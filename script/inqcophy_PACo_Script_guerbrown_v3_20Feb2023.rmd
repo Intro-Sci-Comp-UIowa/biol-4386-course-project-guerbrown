@@ -12,12 +12,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ### The following code was designed to complete a procrustean analysis of cophylogeny using Synergus inquilines and their hosts in Cynipidae. Synergus trees were made with concatenated data of ultra conserved elements (UCE) and CO1 (made by A. Forbes and M. Zhang). Species were chosen based on conservative estimates (Ward et al., 2023; manuscript in preperation). 
 
 ### Set files
+##### This should be the only information you need to change in order to recapitulate this analysis.
 
 ```{r}
-parasitetree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/inqcophy_PACo_UCECO1SynTree_v02_guerbrown_22Feb2023.nex"
-hosttree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/inqcophy_PACo_CynipidTree_v02_guerbrown_22Feb2023.nex"
+parasitetree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_UCECO1SynTree_v02_guerbrown_22Feb2023.nex"
+hosttree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_CynipidTree_v02_guerbrown_22Feb2023.nex"
 assocdata <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_AssociationMatrix_guerbrown_v6_20Feb2023.csv"
 ```
+
+### Dependencies
 
 ```{r Library Chunk}
 library(paco)
@@ -25,67 +28,95 @@ library(ape)
 library(vegan)
 library(phytools)
 library(plotrix)
-library(svglite)
+library(smacof)
 ```
 
-# Import and prune the Synergus tree
+#### Importing the Synergus tree
 
 ```{r Synergus Import and Pruning, error = T}
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_SynTree_v01_guerbrown_23Feb2023.svg")
+
+#Import
 p <- readNexus(parasitetree)
+
+#Fixing tip labels. This is unnecessary but it's nice to make sure everything is plotting correctly
+
 tiplabel_syn <- c("Synergus_sp.6", "S._punctatus_A", "S._campanula_A", "Synergus_sp.3", "Synergus_sp.7", "Synergus_sp.8",
                    "S._walshii_A", "S._erinacei_A", "S._erinacei_B", "S._villosus", "S._magnus", "Synergus_sp.2",
                    "S._ochreus", "S._oneratus_A", "S._oneratus_B", "S._oneratus_C", "S._coniferae", "S._lignicola",
                    "S._laeviventris_A", "S._laeviventris_B", "S._laeviventris_C")
 p$tip.label <- tiplabel_syn
+
+#Rooting the phylogeny based on a version of the tree with an outgroup and plotting
 root.phylo(p, 1, resolve.root = T)
 plot.phylo(p, align.tip.label = T, use.edge.length = F, root.edge = T)
+dev.off()
 ```
 
-# Import and prune Cynipidae tree
+#### Importing Cynipidae tree
 
 ```{r Cynipid Import and Pruning, error = T}
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_CynipTree_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+
+#Import
 h <- read.nexus(hosttree)
+
 tiplabel_gall <- c("Disholcaspis_quercusglobulus", "Disholcaspis_quercusmamma", "Acraspis_villosa", "Acraspis_quercushirta", "Acraspis_pezomachoides", "Acraspis_erinacei", "Druon_ignotum", "Druon_quercuslanigerum", "Cynips_conspicuus","Philonix_fulvicollis", "Atrusca_quercuscentricola", "Belonocnema_kinseyi", "Andricus_quercusstrobilanus", "Andricus_pisiformis", "Andricus_kingii", "Callirhytis_quercuspunctata", "Callirhytis_quercusventricosa", "Dryocosmus_minusculus", "Amphibolips_quercusostensackenii", "Amphibolips_quercusjuglans", "Amphibolips_cookii")
 h$tip.label <- tiplabel_gall
+
 root.phylo(h, 1, resolve.root = T)
 plot.phylo(h, align.tip.label = T, use.edge.length = F, root.edge = T)
+dev.off()
 ```
 
-# Associations
+# Importing the association matrix and 
 
-```{r}
+```{r fig.height=10, fig.width=20, fig.align='center', dev='svg'}
+#Association matrix import
 assoc <- read.table(assocdata, header = T, sep = ",")
+#modifying the association matrix to make it readable by the program
 hp <- as.data.frame.matrix(assoc)
-cophy <- cophylo(h, p, hp)
-cophy_plot <- plot(cophy, link.type = "straight" ,link.lwd=4,
-     link.lty="solid",link.col=make.transparent("black",
-     0.2))
-```
 
-### Change the two column association matrix into a binary association matrix. This is neccessary to calculate principle coordinates in the statistical section.
+#Removing underscores from the labels
+h$tip.label <- gsub("_", " ", h$tip.label)
+p$tip.label <- gsub("_", " ", p$tip.label)
+hp$Gallers <- gsub("_", " ", hp$Galler)
+hp$Synergus <- gsub("_", " ", hp$Synergus)
+
+#plotting the tangelgram
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+cophyloplot <- cophyloplot(h, p, hp, show.tip.label = T,
+lwd = 4, col = make.transparent("black", 0.3), font = 4,
+length.line = 0, gap = -1, space = 135, rotate = F,  align.tip.label = T, 
+use.edge.length = F, root.edge = T)+
+text(5,19.7, "Cynipidae", cex = 1.2)+
+text(168, 20.20, "Synergus", cex = 1.2)
+dev.off()
+```
 
 ## PACo
-### Calculate the statistical numeric underlying cophylogeny. Permutations = 10,000
 
 ```{r}
+#Change the two column association matrix into a binary association matrix. This is necessary to calculate principle coordinates in the statistical section.
 hp_binary <- table(hp)
 h_dist <- cophenetic(h)
 p_dist <- cophenetic(p)
+
+#Prepare PACo data and compute the result with 1,000 permutations.
 D <- prepare_paco_data(h_dist, p_dist, hp_binary)
 D <- add_pcoord(D)
 D <- PACo(D, nperm=1000, seed = NA, method= "r0", proc.warning = F)
 ```
-### At 10k perm.
-####$p
-####[1] 0
 
-####$ss
-####[1] 0.02584893
+##### This is the result at 10k permutations
+$p
+- [1] 0
 
-####$n
-####[1] 1000
+$ss
+- [1] 0.02584893
 
-
+$n
+- [1] 1000
 
 ### Residuals
 
@@ -93,21 +124,7 @@ D <- PACo(D, nperm=1000, seed = NA, method= "r0", proc.warning = F)
 residuals_paco(D$proc)
 ```
 
-# Graphics
-
-```{r eval=FALSE, include=FALSE}
-h$tip.label <- gsub("_", " ", h$tip.label)
-p$tip.label <- gsub("_", " ", p$tip.label)
-hp$Gallers <- sub("_", " ", hp$Galler)
-hp$Synergus <- sub("_", " ", hp$Synergus)
-cophyloplot(h, p, hp, show.tip.label = T, use.edge.length = F,
-lwd = 4, col = make.transparent("black", 0.3), font = 3,
-length.line = 0, gap = 1, space = 135, rotate = F)
-text(5,19.7, "Cynipidae", cex = 1.2)
-text(168, 20.20, "Synergus", cex = 1.2)
-```
-
-### Note to Andrew: I need to add labels to this Procrustes plot. That'll probably be my next mission.
+### Procrustes plot
 
 ```{r}
 HP.proc <- procrustes(D$H_PCo, D$P_PCo)
@@ -121,6 +138,30 @@ HostX <- unique(HP.proc$X)
 ParY <- unique(HP.proc$Yrot)
 identify(ParY[,1], ParY[,2], rownames(ParY), offset=0.3, xpd=F, cex=0.8)
 identify(HostX[,1], HostX[,2], rownames(HostX),offset=0.3, xpd=T, cex= 0.8) 
+
+
+HP.proc <- procrustes(D$H_PCo, D$P_PCo)
+HP.proc
+summary(HP.proc)
+plot(HP.proc, pch = 21)
+
+## Configuration plots; Procrustes plots.
+plot(D$H_PCo, main = "Host")   ## MDS plot East Germany
+plot(D$P_PCo, main = "Parasite")   ## MDS plot West Germany
+
+## Procrustes configurations (X and Yhat)
+plot(HP.proc, ylim = c(-1, 1),  col.X = "cadetblue", col.Yhat = "brown", pch = 19, 
+    legend = list(pos = "topleft", labels = c("Host", "Parasite"))) 
+    
+## Procrustes transformations (Y and Yhat)
+plot(HP.proc, plot.type = "transplot", length = 0.05, ylim = c(-1,1), 
+     legend = list(pos = "bottomright", 
+     labels = c("Parasite (untransformed)", "Host (transformed)")))
+
+
+A.normalized.df <- as.data.frame(t(D$P_PCo))
+B.transformed.df <- as.data.frame(t(D$H_PCo))
+data.df <- rbind(D$H_PCo, D$P_PCo, A.normalized.df, B.transformed.df)
 ```
 
 ### Barplot of links.

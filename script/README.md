@@ -1,0 +1,1 @@
+# This contains all functioning scripts used in the analysis. Currently, all analysis is being completed in this folder but fucntioning scripts will be left here and the actual analysis will be moved to the /analysis folder. 

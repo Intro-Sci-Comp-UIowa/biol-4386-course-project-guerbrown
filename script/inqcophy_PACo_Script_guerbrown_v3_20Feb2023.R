@@ -94,41 +94,39 @@ residuals_paco(D$proc)
 HP.proc <- procrustes(D$H_PCo, D$P_PCo)
 HostX <- HP.proc$X
 ParY <- HP.proc$Yrot
+
+#Let's make a few versions of the procrustes plot
+#Here's one that has everything on it. If it's overwhelming to study, consider using identify() instead of text(). This will allow you to click and choose which points are labeled. 
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_FullProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
 plot(HostX, asp=1, pch=120)
 points(ParY, pch=1)
-arrows(ParY[,1], ParY[,2], HostX[,1], HostX[,2], length=0.12, angle=15,
-xpd=FALSE)
+arrows(ParY[,1], ParY[,2], HostX[,1], HostX[,2], length=0.10, angle = 90, xpd=T)
 HostX <- unique(HP.proc$X)
 ParY <- unique(HP.proc$Yrot)
-identify(ParY[,1], ParY[,2], rownames(ParY), offset=0.3, xpd=F, cex=0.8)
-identify(HostX[,1], HostX[,2], rownames(HostX),offset=0.3, xpd=T, cex= 0.8) 
+text(ParY[,1], ParY[,2], rownames(ParY), offset=0.3, xpd=F, cex=0.7)
+text(HostX[,1], HostX[,2], rownames(HostX),offset=0.3, xpd=F, cex= 0.7) 
+dev.off()
+
+#Now, here's one without the lines and just Synergus
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_SynProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+plot(HostX, asp=1, pch=120)
+points(ParY, pch=1)
+HostX <- unique(HP.proc$X)
+ParY <- unique(HP.proc$Yrot)
+text(ParY[,1], ParY[,2], rownames(ParY), offset=0.3, xpd=F, cex=0.7)
+dev.off()
+
+#And here's another with just the Cynipid taxa
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_CynProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+plot(HostX, asp=1, pch=120)
+points(ParY, pch=1)
+HostX <- unique(HP.proc$X)
+ParY <- unique(HP.proc$Yrot)
+text(HostX[,1], HostX[,2], rownames(HostX),offset=0.3, xpd=F, cex= 0.7)
+dev.off()
 
 
-HP.proc <- procrustes(D$H_PCo, D$P_PCo)
-HP.proc
-summary(HP.proc)
-plot(HP.proc, pch = 21)
-
-## Configuration plots; Procrustes plots.
-plot(D$H_PCo, main = "Host")   ## MDS plot East Germany
-plot(D$P_PCo, main = "Parasite")   ## MDS plot West Germany
-
-## Procrustes configurations (X and Yhat)
-plot(HP.proc, ylim = c(-1, 1),  col.X = "cadetblue", col.Yhat = "brown", pch = 19, 
-    legend = list(pos = "topleft", labels = c("Host", "Parasite"))) 
-    
-## Procrustes transformations (Y and Yhat)
-plot(HP.proc, plot.type = "transplot", length = 0.05, ylim = c(-1,1), 
-     legend = list(pos = "bottomright", 
-     labels = c("Parasite (untransformed)", "Host (transformed)")))
-
-
-A.normalized.df <- as.data.frame(t(D$P_PCo))
-B.transformed.df <- as.data.frame(t(D$H_PCo))
-data.df <- rbind(D$H_PCo, D$P_PCo, A.normalized.df, B.transformed.df)
-
-
-## -----------------------------------------------------------------------------
+## ----fig.height=7.5, fig.width=20, fig.align='center', dev='svg'--------------
 NLinks = 25
 SQres <- sort(residuals_paco(D$proc))
 SQres.jackn <- SQres**2
@@ -144,15 +142,17 @@ phi.UCI <- apply(SQres.jackn, 2, sd, na.rm = TRUE)
 t.critical = qt(0.975, NLinks-1) 
 phi.UCI <- phi.mean + t.critical * phi.UCI/sqrt(NLinks)
 phi.UCI
+
+svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_ResBarplot_v01_guerbrown_23Feb2023.svg", width = 20, height = 7.5)
 par(mar = c(7, 5, 3, 6))
-pat.bar <- barplot(sort(phi.mean), names.arg = "", space = 0.2, col="white", ylab= "Squared residuals", ylim=c(0, max(phi.UCI)),cex.lab=1.2)
+pat.bar <- barplot(sort(phi.mean), names.arg = "", space = 0.2, col="white", ylab= "Squared residuals", ylim=c(0, max(phi.UCI)),cex.lab=1)
 segments(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5)
 arrows(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5, angle = 90, code = 3, length = 0.05)
 abline(a=median(phi.mean), b=0, lty=2) 
-text(pat.bar, par("usr")[3] - 0.001, srt = 330, adj = 0, labels = rownames(SQres.jackn), xpd = TRUE, font = 1, cex=1.2, las = 1)
+text(pat.bar, par("usr")[3] - 0.001, srt = 330, adj = 0, labels = rownames(SQres.jackn), xpd = TRUE, font = 3, cex=0.65, las = 2)
 text(22.32, 0.05, '*', cex = 3)
 text(25.93, 0.053, '*', cex = 3)
-
+dev.off()
 
 
 ## -----------------------------------------------------------------------------
@@ -160,16 +160,16 @@ h_matrix <- compute.mr(h)
 h_df <- as.data.frame(h_matrix)
 host.D <- cophenetic(h)
 para.D <- cophenetic(p)
-parafit <- parafit(sqrt(host.D), sqrt(para.D), hp_binary, test.links = T, correction = "none", nperm = 10000)
+parafit <- parafit(sqrt(host.D), sqrt(para.D), hp_binary, test.links = T, correction = "none", nperm = 1000)
 print(parafit)
 
 
 ## -----------------------------------------------------------------------------
-parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "cailliez", nperm = 10000)
+parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "cailliez", nperm = 1000)
 print(parafit)
 
 
 ## -----------------------------------------------------------------------------
-parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "lingoes", nperm = 10000)
+parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "lingoes", nperm = 1000)
 print(parafit)
 

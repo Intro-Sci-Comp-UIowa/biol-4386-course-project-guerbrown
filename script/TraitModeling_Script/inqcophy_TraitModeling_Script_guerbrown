@@ -1,0 +1,51 @@
+---
+title: "Synergus Trait Modeling Script"
+author: "G. Brown"
+date: "2023-02-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Purpose: Computationally simulate stochastic mapping of ancestral states in the Synergus inquiline phylogeny using previously established methods for deciding models.
+
+##### Initialization
+```{r message=TRUE, warning=TRUE}
+library(ape)
+library(phytools)
+library(geiger)
+library(expm)
+library(lmtest)
+library(corHMM)
+library(viridisLite)
+```
+
+##### Path to data
+
+```{r}
+setwd("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo")
+parasitetree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_UCECO1SynTree_guerbrown.nex"
+hosttree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_CynipidTree_guerbrown.nex"
+assocdata <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_AssociationMatrix_guerbrown.csv"
+```
+
+##### Synergus Tree Import
+
+```{r}
+#Import
+p <- readNexus(parasitetree)
+
+#Fixing tip labels. This is unnecessary but it's nice to make sure everything is plotting correctly
+
+tiplabel_syn <- c("Synergus_sp.6", "S._punctatus_A", "S._campanula_A", "Synergus_sp.3", "Synergus_sp.7", "Synergus_sp.8",
+                   "S._walshii_A", "S._erinacei_A", "S._erinacei_B", "S._villosus", "S._magnus", "Synergus_sp.2",
+                   "S._ochreus", "S._oneratus_A", "S._oneratus_B", "S._oneratus_C", "S._coniferae", "S._lignicola",
+                   "S._laeviventris_A", "S._laeviventris_B", "S._laeviventris_C")
+p$tip.label <- tiplabel_syn
+
+#Rooting the phylogeny based on a version of the tree with an outgroup and plotting
+root.phylo(p, 1, resolve.root = T)
+plot.phylo(p, align.tip.label = T, use.edge.length = F, root.edge = T)
+```

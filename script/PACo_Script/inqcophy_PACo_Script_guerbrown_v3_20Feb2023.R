@@ -3,9 +3,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ## -----------------------------------------------------------------------------
-parasitetree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_UCECO1SynTree_v02_guerbrown_22Feb2023.nex"
-hosttree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_CynipidTree_v02_guerbrown_22Feb2023.nex"
-assocdata <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_AssociationMatrix_guerbrown_v6_20Feb2023.csv"
+setwd("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo")
+parasitetree <- "/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_UCECO1SynTree_v02_guerbrown_22Feb2023.nex"
+hosttree <- "/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_CynipidTree_v02_guerbrown_22Feb2023.nex"
+assocdata <- "/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/PACo/inqcophy_PACo_AssociationMatrix_guerbrown_v6_20Feb2023.csv"
 
 
 ## ----Library Chunk------------------------------------------------------------
@@ -14,11 +15,11 @@ library(ape)
 library(vegan)
 library(phytools)
 library(plotrix)
-library(smacof)
 
 
 ## ----Synergus Import and Pruning, error = T-----------------------------------
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_SynTree_v01_guerbrown_23Feb2023.svg")
+setwd("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output")
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_SynTree_v01_guerbrown_23Feb2023.svg")
 
 #Import
 p <- readNexus(parasitetree)
@@ -38,7 +39,7 @@ dev.off()
 
 
 ## ----Cynipid Import and Pruning, error = T------------------------------------
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_CynipTree_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_CynipTree_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
 
 #Import
 h <- read.nexus(hosttree)
@@ -64,7 +65,7 @@ hp$Gallers <- gsub("_", " ", hp$Galler)
 hp$Synergus <- gsub("_", " ", hp$Synergus)
 
 #plotting the tangelgram
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
 cophyloplot <- cophyloplot(h, p, hp, show.tip.label = T,
 lwd = 4, col = make.transparent("black", 0.3), font = 4,
 length.line = 0, gap = -1, space = 135, rotate = F,  align.tip.label = T, 
@@ -97,7 +98,7 @@ ParY <- HP.proc$Yrot
 
 #Let's make a few versions of the procrustes plot
 #Here's one that has everything on it. If it's overwhelming to study, consider using identify() instead of text(). This will allow you to click and choose which points are labeled. 
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_FullProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_FullProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
 plot(HostX, asp=1, pch=120)
 points(ParY, pch=1)
 arrows(ParY[,1], ParY[,2], HostX[,1], HostX[,2], length=0.10, angle = 90, xpd=T)
@@ -108,7 +109,7 @@ text(HostX[,1], HostX[,2], rownames(HostX),offset=0.3, xpd=F, cex= 0.7)
 dev.off()
 
 #Now, here's one without the lines and just Synergus
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_SynProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_SynProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
 plot(HostX, asp=1, pch=120)
 points(ParY, pch=1)
 HostX <- unique(HP.proc$X)
@@ -117,7 +118,7 @@ text(ParY[,1], ParY[,2], rownames(ParY), offset=0.3, xpd=F, cex=0.7)
 dev.off()
 
 #And here's another with just the Cynipid taxa
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_CynProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_CynProcPlot_v01_guerbrown_23Feb2023.svg", width = 20, height = 10)
 plot(HostX, asp=1, pch=120)
 points(ParY, pch=1)
 HostX <- unique(HP.proc$X)
@@ -143,7 +144,7 @@ t.critical = qt(0.975, NLinks-1)
 phi.UCI <- phi.mean + t.critical * phi.UCI/sqrt(NLinks)
 phi.UCI
 
-svg("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_ResBarplot_v01_guerbrown_23Feb2023.svg", width = 20, height = 7.5)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_ResBarplot_v01_guerbrown_23Feb2023.svg", width = 20, height = 7.5)
 par(mar = c(7, 5, 3, 6))
 pat.bar <- barplot(sort(phi.mean), names.arg = "", space = 0.2, col="white", ylab= "Squared residuals", ylim=c(0, max(phi.UCI)),cex.lab=1)
 segments(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5)

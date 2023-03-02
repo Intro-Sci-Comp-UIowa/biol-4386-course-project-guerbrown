@@ -1,0 +1,69 @@
+#NEXUS
+[R-package APE, Thu Mar  2 13:12:59 2023]
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 28;
+	TAXLABELS
+		Synergus_sp.4
+		Synergus_sp.5
+		Synergus_sp.6
+		S._punctatus_A
+		S._campanula_A
+		S._campanula_B
+		S._punctatus_B
+		Synergus_sp.3
+		Synergus_sp.7
+		Synergus_sp.8
+		S._walshii_A
+		S._walshii_B
+		S._erinacei_A
+		S._erinacei_B
+		S._villosus
+		S._magnus
+		Synergus_sp.2
+		S._ochreus
+		S._oneratus_A
+		S._oneratus_B
+		S._oneratus_C
+		Synergus_sp.1
+		S._conifarae
+		Synergus_nr._lignicola
+		S._lignicola
+		S._laeviventris_A
+		S._laeviventris_B
+		S._laeviventris_C
+	;
+END;
+BEGIN TREES;
+	TRANSLATE
+		1	Synergus_sp.4,
+		2	Synergus_sp.5,
+		3	Synergus_sp.6,
+		4	S._punctatus_A,
+		5	S._campanula_A,
+		6	S._campanula_B,
+		7	S._punctatus_B,
+		8	Synergus_sp.3,
+		9	Synergus_sp.7,
+		10	Synergus_sp.8,
+		11	S._walshii_A,
+		12	S._walshii_B,
+		13	S._erinacei_A,
+		14	S._erinacei_B,
+		15	S._villosus,
+		16	S._magnus,
+		17	Synergus_sp.2,
+		18	S._ochreus,
+		19	S._oneratus_A,
+		20	S._oneratus_B,
+		21	S._oneratus_C,
+		22	Synergus_sp.1,
+		23	S._conifarae,
+		24	Synergus_nr._lignicola,
+		25	S._lignicola,
+		26	S._laeviventris_A,
+		27	S._laeviventris_B,
+		28	S._laeviventris_C
+	;
+	TREE * UNTITLED = [&R] (((((((1:0.004,(2:0.002809,((3:0.002487,(4:0.007352,5:0.002238):0.000329):0.000478,((6:0.002025,7:0.002651):0.00017,8:0.001346):0.000525):0.000419):0.000767):0.004349,((9:0.014561,10:0.005452):0.00205,(11:0.003136,12:0.002475):0.0034):0.004136):0.00634,(13:0.002664,14:0.004763):0.009893):0.002737,((15:0.007746,16:0.005):0.000421,17:0.003984):0.00726):0.002154,(18:0.014567,((19:0.006583,20:0.025088):0.000358,21:0.003254):0.00667):0.009389):0.014768,(22:0.015337,(23:0.025165,(24:0.002413,25:0.004074):0.014723):0.002525):0.0274):0.006701,(26:0.028522,(27:0.027894,28:0.032454):0.002215):0.038965);
+END;

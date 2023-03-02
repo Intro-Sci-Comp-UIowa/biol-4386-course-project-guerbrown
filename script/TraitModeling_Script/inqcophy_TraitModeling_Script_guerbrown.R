@@ -1,0 +1,198 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE)
+
+
+## ----message=TRUE, warning=TRUE-----------------------------------------------
+library(ape)
+library(phytools)
+library(geiger)
+library(corHMM)
+
+
+## -----------------------------------------------------------------------------
+setwd("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling")
+tree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_PACo_UCECO1SynTree_guerbrown.nex"
+traits <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_traitmodeling_TraitData_guerbrown.csv"
+
+
+## -----------------------------------------------------------------------------
+#Import
+S <- readNexus(tree)
+
+#Fixing tip labels. This is unnecessary but it's nice to make sure everything is plotting correctly
+
+tiplabel_syn <- c("Synergus_sp.6", "S._punctatus_A", "S._campanula_A", "Synergus_sp.3", "Synergus_sp.7", "Synergus_sp.8",
+                   "S._walshii_A", "S._erinacei_A", "S._erinacei_B", "S._villosus", "S._magnus", "Synergus_sp.2",
+                   "S._ochreus", "S._oneratus_A", "S._oneratus_B", "S._oneratus_C", "S._coniferae", "S._lignicola",
+                   "S._laeviventris_A", "S._laeviventris_B", "S._laeviventris_C")
+S$tip.label <- tiplabel_syn
+
+#Rooting the phylogeny based on a version of the tree with an outgroup and plotting
+root.phylo(S, 1, resolve.root = T)
+plot.phylo(S, align.tip.label = T, use.edge.length = F, root.edge = T)
+
+
+## -----------------------------------------------------------------------------
+traits <- read.csv(traits, row.names = 1)
+
+
+## -----------------------------------------------------------------------------
+oaksection <- setNames(data$oak_section, rownames(data))
+# Rename the levels of the variable 
+levels(oaksection) <- unique(data$oak_section)
+# Recapitulation of the best fit model
+fitER <- ace(oaksection, tree, model = "ER", type = "discrete")
+
+
+## -----------------------------------------------------------------------------
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_OakSectionRecon_guerbrown.svg", width = 20, height = 10)
+plot.phylo(tree, type = "fan", cex = 3, align.tip.label = F, lwd = 3.5, label.offset = 0.2, use.edge.length = F, open.angle =  165)
+sectiontotree <- setNames(data$oak_section, data$Synergus)
+xx <- strsplit(as.character(sectiontotree), split = "+", fixed = T)
+pp <- matrix(0, length(sectiontotree), 3, dimnames = list(names(sectiontotree), c("Quercus","Lobatae","Virentes")))
+for (i in 1:nrow(pp)) pp[i,xx[[i]]]<-1/length(xx[[i]])
+par(fg = "transparent")
+ape::tiplabels(pie = pp, piecol = cols, cex = 0.2)
+par(fg = "black")
+cols <- c("grey45", "red", "green", "blue")
+tiplabels(pie = to.matrix(oaksection, sort(unique(oaksection))),piecol = cols, cex = 0.3)
+nodelabels( node = 1:tree$Nnode+Ntip(tree),
+    pie = fitER$lik.anc, piecol = cols, cex=0.3)
+tiplabels(pie = to.matrix(oaksection,sort(unique(oaksection))), piecol = cols, cex = 0.3)
+legend("bottom", c("Quercus","Lobatae","Virentes", "Quercus+Virentes"), pch = 21, pt.bg = c("grey45", "red", "green", "blue"), pt.cex = 5, title = "Oak Section", cex = 3)
+dev.off()
+
+
+## -----------------------------------------------------------------------------
+cynipgen <- setNames(data$cynip_generation, rownames(data))
+# Rename the levels of the variable 
+levels(cynipgen) <- unique(data$cynip_generation)
+# Recapitulation of the best fit model
+cynipgen.ER <- fitpolyMk(tree, cynipgen, model = "ER")
+#pull states off the fitted model object
+xx <- apply(cynipgen.ER$data,1,
+            function(x,ss) ss[which(x==1)],
+            ss=colnames(cynipgen.ER$data))
+#corHMM does not like to work with + so let's replace those with /
+#xx<-gsub("+","/",xx,fixed=TRUE)
+#build corHMM data frame
+gen.data <- data.frame(Genus_sp = names(xx), habitat = xx)
+#Pull out model design matrix from the fitted object
+rate.mat <- cynipgen.ER$index.matrix
+rate.mat[rate.mat==0] <- NA
+colnames(rate.mat) <- rownames(rate.mat) <- gsub("+","/",
+                                             colnames(rate.mat),fixed=TRUE)
+ind <- order(colnames(rate.mat))
+rate.mat <- rate.mat[ind,ind]
+#Ancestral States
+fit.marginal<-corHMM(tree,gen.data,
+                     rate.mat=rate.mat,
+                     node.states="marginal",
+                     rate.cat=1,p=cynipgen.ER$rates,
+                     root.p=cynipgen.ER$pi)
+#Marginal states are stores in $states. Extract this and ensure the model is consistent
+asr<-fit.marginal$states
+colnames(asr)<-colnames(rate.mat)
+colnames(asr)<-gsub("/","+",colnames(asr))
+
+
+## -----------------------------------------------------------------------------
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_CynipGenRecon_guerbrown.svg", width = 20, height = 10)
+plot.phylo(tree, type = "fan", cex = 3, align.tip.label = F, lwd = 3.5, label.offset = 0.2, use.edge.length = F, open.angle =  165)
+X<-strsplit(setNames(as.character(rate.mat),names(rate.mat)),"+", fixed=TRUE)
+pies<-matrix(0,Ntip(tree),3,
+	dimnames=list(tree$tip.label,
+	c("Asexual","Sexual")))
+for(i in 1:Ntip(tree)) 
+	pies[tree$tip.label[i],
+		X[[tree$tip.label[i]]]]<-
+		rep(1/length(X[[tree$tip.label[i]]]),
+		length(X[[tree$tip.label[i]]]))
+cols<-setNames(c("blue", "red", "yellow"),
+	c("Sexual", "Asexual"))
+par(fg="black")
+tiplabels(pie=pp,piecol=cols,cex=0.3)
+par(fg="black")
+piecol<-vector()
+for(i in 1:ncol(asr)){
+	nn<-strsplit(colnames(asr)[i],"+",fixed=TRUE)[[1]]
+	if(length(nn)==1) piecol[i]<-cols[nn]
+	else if(length(nn)==2) piecol[i]<-colorRampPalette(cols[nn])(3)[2]
+	else piecol[i]<-"black"
+}
+names(piecol)<-colnames(asr)
+par(fg="transparent")
+nodelabels(pie=asr,piecol=piecol,cex=0.3)
+par(fg="black")
+legend(x="topleft",legend=colnames(asr),
+	pt.cex=1.8,pch=16,cex=0.8,col=piecol,
+	bty="n")
+dev.off()
+
+
+## -----------------------------------------------------------------------------
+mp <- setNames(data$monopoly, rownames(data))
+# Rename the levels of the variable 
+levels(mp) <- unique(data$monopoly)
+# Recapitulation of the best fit model
+mp.ER <- fitpolyMk(tree, mp, model = "ER")
+#pull states off the fitted model object
+xx <- apply(mp.ER$data,1,
+            function(x,ss) ss[which(x==1)],
+            ss=colnames(mp.ER$data))
+#corHMM does not like to work with + so let's replace those with /
+#xx<-gsub("+","/",xx,fixed=TRUE)
+#build corHMM data frame
+mp.data <- data.frame(Genus_sp = names(xx), habitat = xx)
+#Pull out model design matrix from the fitted object
+rate.mat <- mp.ER$index.matrix
+rate.mat[rate.mat==0] <- NA
+colnames(rate.mat) <- rownames(rate.mat) <- gsub("+","/",
+                                             colnames(rate.mat),fixed=TRUE)
+ind <- order(colnames(rate.mat))
+rate.mat <- rate.mat[ind,ind]
+#Ancestral States
+fit.marginal<-corHMM(tree,mp.data,
+                     rate.mat=rate.mat,
+                     node.states="marginal",
+                     rate.cat=1,p=mp.ER$rates,
+                     root.p=cynipgen.ER$pi)
+#Marginal states are stores in $states. Extract this and ensure the model is consistent
+asr<-fit.marginal$states
+colnames(asr)<-colnames(rate.mat)
+colnames(asr)<-gsub("/","+",colnames(asr))
+
+
+## -----------------------------------------------------------------------------
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_MPRecon_guerbrown.svg", width = 20, height = 10)
+plot.phylo(tree, type = "fan", cex = 3, align.tip.label = F, lwd = 3.5, label.offset = 0.2, use.edge.length = F, open.angle =  165)
+X<-strsplit(setNames(as.character(rate.mat),names(rate.mat)),"+", fixed=TRUE)
+pies<-matrix(0,Ntip(tree),3,
+	dimnames=list(tree$tip.label,
+	c("Monothalamous","Polythalamous")))
+for(i in 1:Ntip(tree)) 
+	pies[tree$tip.label[i],
+		X[[tree$tip.label[i]]]]<-
+		rep(1/length(X[[tree$tip.label[i]]]),
+		length(X[[tree$tip.label[i]]]))
+cols<-setNames(c("blue", "red", "yellow"),
+	c("Monothalamous", "Polythalamous"))
+par(fg="black")
+tiplabels(pie=pp,piecol=cols,cex=0.3)
+par(fg="black")
+piecol<-vector()
+for(i in 1:ncol(asr)){
+	nn<-strsplit(colnames(asr)[i],"+",fixed=TRUE)[[1]]
+	if(length(nn)==1) piecol[i]<-cols[nn]
+	else if(length(nn)==2) piecol[i]<-colorRampPalette(cols[nn])(3)[2]
+	else piecol[i]<-"black"
+}
+names(piecol)<-colnames(asr)
+par(fg="transparent")
+nodelabels(pie=asr,piecol=piecol,cex=0.3)
+par(fg="black")
+legend(x="topleft",legend=colnames(asr),
+	pt.cex=1.8,pch=16,cex=0.8,col=piecol,
+	bty="n")
+dev.off()
+

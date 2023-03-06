@@ -7,7 +7,7 @@ S._campanula_A,Quercus,alba+margaretiae+montana+prinoides+stellata,Asexual,0,2,0
 S._campanula_B,Quercus,bicolor+lurata+macrocarpa,Asexual,0,1,1,1,0,1,0,0,0,0,0,0,1+0,0,leaf,3
 S._punctatus_B,Quercus,bicolor+lyrata,Asexual,0,2,1,1,0,0,0,0,0,0,0,0,0,0,leaf,3
 Synergus_sp.3,Quercus,alba+margaretiae+montana+prinoides+stellata+bicolor+macrocarpa+muehlenbergii,Asexual,0,2,0,1,0,0,1+0,0,0,0,1+0,0,0,1,stem+leaf,3
-Synergus_sp.7,Quercus,berberidifolia+cornelius-mulleri+douglasii+engelmannii+lobata,Asexual,0,2+1,0,1,0+1,0,0,0,0,0,0,0,1+0,0,leaf,3+2
+Synergus_sp.7,Quercus,berberidifolia+cornelius-mulleri+douglasii+engelmannii+lobata,Asexual,0,1+2,0,1,1+0,0,0,0,0,0,0,0,1+0,0,leaf,3+2
 Synergus_sp.8,Lobatae,agrifolia+kelloggii+wislizeni,Asexual,0,1,0,1,0,0,0,0,0,0,0,0,0,0,leaf,2
 S._walshii_A,Virentes+Quercus,bicolor+lyrata+macrocarpa+stellata+chapmanii+margaretiae+oglethorpensis+breviloba+stellata+fusiformis+geminata+minima+oleoides+virginiana,Asexual,0,1+2,1,1,0,0,0,1,0,0,0,0,0,0,leaf,3
 S._walshii_B,Quercus,alba+macrocarpa+montana+prinoides+bicolor,Asexual,0,1,0,1,0,0,0,0,0,0,0,0,0,0,leaf,3
@@ -18,7 +18,7 @@ S._magnus,Lobatae,coccinea+falcata+ilicifolia+imbricaria+nigra+palustris+phellos
 Synergus_sp.2,Quercus,alba+bicolor+macrocarpa+muehlenbergii+prinoides,Asexual,0,2,0,1,0,0,1,0,0,0,1,0,0,1,leaf,3
 S._ochreus,Quercus,berberidifolia+douglasii+dumosa+durata+lobata,Asexual,0,2,0,1,0,1,1,0,0,0,0,0,0,1,stem+leaf,3
 S._oneratus_A,Quercus,alba+bicolor+lyrata+macrocarpa,Asexual,0,2,1,1,0,0,0,0,0,0,0,0,1,0,petiole+stem,3
-S._oneratus_B,Quercus,gambelii+macrocarpa+michauxii+montana+muehlenbergii+margaretiae+prinoides+stellata+bicolor+lyrata,Asexual,0,1+2,0,1,0,1+0,1+0,0,1+0,0,1+0,0,1+0,1+0,leaf+stem,3
+S._oneratus_B,Quercus,gambelii+macrocarpa+michauxii+montana+muehlenbergii+margaretiae+prinoides+stellata+bicolor+lyrata,Asexual,0,1+2,0,1,0,1+0,1+0,0,1+0,0,1+0,0,1+0,1+0,stem+leaf,3
 S._oneratus_C,Quercus,alba+montana+stellata,Asexual,1+0,2,0,1,1+0,1+0,0,0,0,0,0+1,0,0+1,0+1,leaf,3
 Synergus_sp.1,Quercus,alba+stellata+macrocarpa,Sexual,1+0,2,0,0,0,0,0,0,0,0,0,0,1+0,1+0,stem,2
 S._conifarae,Lobatae,falcata+hemisphaerica+ilicifolia+imbricaria+icana_iopina+laurifolia+marilandics+myrtifolia+nigra+phellos+rubra+velutina,Asexual,0,2,1,1,0,0,1,0,0,0,0,0,0,1,stem,2

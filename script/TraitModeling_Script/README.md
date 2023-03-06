@@ -36,7 +36,7 @@ $ ./inqcophy_Traitmodeling_file.name
 #svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_NAME_guerbrown.svg", width = 20, height = 10)
 
 NAME <- setNames(data$NAME, rownames(data))
-levels(NAME)) <- unique(data$NAME)
+levels(NAME) <- unique(data$NAME)
 NAME.ER <- ace(NAME, S, model = "ER", type = "discrete")
 
 NAMEcols <- c("red", "blue", "green", "black")
@@ -107,8 +107,8 @@ par(fg="black")
 piecol <- NAMEcols
 for(i in 1:ncol(NAMEasr)){
 	NAMEnn <- strsplit(colnames(NAMEasr)[i],"+", fixed=TRUE)[[1]]
-	if(length(NAMEnn)==1) piecol[i]<-cols[NAMEnn]
-	else if(length(NAMEnn)==2) piecol[i] <- colorRampPalette(cols[NAMEnn])(3)[2]
+	if(length(NAMEnn)==1) piecol[i]<-NAMEcols[NAMEnn]
+	else if(length(NAMEnn)==2) piecol[i] <- colorRampPalette(NAMEcols[NAMEnn])(3)[2]
 	else piecol[i]<-"black"
 }
 names(piecol)<-colnames(NAMEasr)

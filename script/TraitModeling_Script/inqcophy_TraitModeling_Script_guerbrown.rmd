@@ -209,8 +209,8 @@ par(fg="black")
 piecol <- mono.polythalamouscols
 for(i in 1:ncol(mono.polythalamousasr)){
 	mono.polythalamousnn <- strsplit(colnames(mono.polythalamousasr)[i],"+", fixed=TRUE)[[1]]
-	if(length(mono.polythalamousnn)==1) piecol[i]<-cols[mono.polythalamousnn]
-	else if(length(mono.polythalamousnn)==2) piecol[i] <- colorRampPalette(cols[mono.polythalamousnn])(3)[2]
+	if(length(mono.polythalamousnn)==1) piecol[i]<-mono.polythalamouscols[mono.polythalamousnn]
+	else if(length(mono.polythalamousnn)==2) piecol[i] <- colorRampPalette(mono.polythalamouscols[mono.polythalamousnn])(3)[2]
 	else piecol[i]<-"black"
 }
 names(piecol)<-colnames(mono.polythalamousasr)
@@ -367,6 +367,91 @@ legend("left", c("0", "1+0", "1"), pch = 21, pt.bg = c("red", "blue", "green"), 
 dev.off()
 ```
 
+### Texture
+
+
+```{r texture DISCRETE, fig.height=10, fig.width=20, fig.align='center'}
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_texture_guerbrown.svg", width = 20, height = 10)
+
+texture <- setNames(data$texture, rownames(data))
+levels(texture) <- unique(data$texture)
+texture.ER <- ace(texture, S, model = "ER", type = "discrete")
+
+texturecols <- c("red", "blue", "green")
+plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
+texture_DATA <- setNames(data$texture, data$Synergus)
+texturexx <- strsplit(as.character(texture_DATA), split = "+", fixed = T)
+texturepp <- matrix(0, length(texture_DATA), 3, dimnames = list(names(texture_DATA), c("0", "1", "1+0")))
+for (i in 1:nrow(texturepp)) texturepp[i,texturexx[[i]]]<-1/length(texturexx[[i]])
+par(fg = "transparent")
+ape::tiplabels(pie = texturepp, piecol = texturecols, cex = 0.15)
+par(fg = "black")
+tiplabels(pie = to.matrix(texture, sort(unique(texture))),piecol = texturecols, cex = 0.15)
+nodelabels( node = 1:S$Nnode+Ntip(S),
+    pie = texture.ER$lik.anc, piecol = texturecols, cex=0.25)
+tiplabels(pie = to.matrix(texture, sort(unique(texture))), piecol = texturecols, cex = 0.15)
+legend("left", c("0", "1", "1+0"), pch = 21, pt.bg = c("red", "blue", "green"), pt.cex = 3, title = "Gall Texture", cex = 1.5)
+
+dev.off()
+```
+
+### Hairs
+
+
+```{r texture DISCRETE, fig.height=10, fig.width=20, fig.align='center'}
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_hairs_guerbrown.svg", width = 20, height = 10)
+
+texture <- setNames(data$texture, rownames(data))
+levels(texture) <- unique(data$texture)
+texture.ER <- ace(texture, S, model = "ER", type = "discrete")
+
+texturecols <- c("red", "blue", "green")
+plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
+texture_DATA <- setNames(data$texture, data$Synergus)
+texturexx <- strsplit(as.character(texture_DATA), split = "+", fixed = T)
+texturepp <- matrix(0, length(texture_DATA), 3, dimnames = list(names(texture_DATA), c("0", "1+0", "1")))
+for (i in 1:nrow(texturepp)) texturepp[i,texturexx[[i]]]<-1/length(texturexx[[i]])
+par(fg = "transparent")
+ape::tiplabels(pie = texturepp, piecol = texturecols, cex = 0.15)
+par(fg = "black")
+tiplabels(pie = to.matrix(texture, sort(unique(texture))),piecol = texturecols, cex = 0.15)
+nodelabels( node = 1:S$Nnode+Ntip(S),
+    pie = texture.ER$lik.anc, piecol = texturecols, cex=0.25)
+tiplabels(pie = to.matrix(texture, sort(unique(texture))), piecol = texturecols, cex = 0.15)
+legend("left", c("0", "1+0", "1"), pch = 21, pt.bg = c("red", "blue", "green"), pt.cex = 3, title = "Gall Spines", cex = 1.5)
+
+#dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Location
 
 ```{r location POLYMORPHIC, fig.height=10, fig.width=20, fig.align='center'}
@@ -428,7 +513,6 @@ par(fg="black")
 legend("left", c("leaf", "stem", "stem+leaf", "petiole+stem", "acorn", "bud", "bud+leaf+acorn"), pch = 21, pt.bg = c("blue", "red", "yellow", "black", "brown", "purple", "orange"), pt.cex = 3, title = "INSERT FORMAL location", cex = 1.5)
 
 #dev.off()
-locationpp
 ```
 
 

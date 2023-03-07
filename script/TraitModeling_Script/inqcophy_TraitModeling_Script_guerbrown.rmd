@@ -121,10 +121,10 @@ colnames(cynip_generationasr) <- gsub("/","+", colnames(cynip_generationasr))
 
 # Adding these to the figure
 
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cynip_generation_guerbrown.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cynip_generation_guerbrown.svg", width = 20, height = 10)
 
 cynip_generationpp <- matrix(0, length(cynip_generation), 3, dimnames = list(names(cynip_generation), c("Asexual", "Sexual", "Asexual+Sexual")))
-plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
+plot.phylo(S, type = "fan", cex = 1.5, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 cynip_generationX <- strsplit(setNames(as.character(cynip_generation_rate.mat), names(cynip_generation_rate.mat)),"+", fixed=TRUE)
 pies <- matrix(0, Ntip(S),2,
 	dimnames=list(S$tip.label,
@@ -134,15 +134,15 @@ for(i in 1:Ntip(S))
 		cynip_generationX[[S$tip.label[i]]]]<-
 		rep(1/length(cynip_generationX[[S$tip.label[i]]]),
 		length(cynip_generationX[[S$tip.label[i]]]))
-cynip_generationcols <- setNames(c("blue", "red", "yellow"),
+cynip_generationcols <- setNames(c("firebrick1", "dodgerblue1"),
 	c("Asexual","Sexual"))
-par(fg="black")
+par(fg="white")
 cynip_generation <- setNames(data$cynip_generation, data$Synergus)
 cynip_generationxx <- strsplit(as.character(cynip_generation), split = "+", fixed = T)
 cynip_generationpp <- matrix(0, length(cynip_generation), 3, dimnames = list(names(cynip_generation), c("Asexual", "Sexual", "Asexual+Sexual")))
 for (i in 1:nrow(cynip_generationpp)) cynip_generationpp[i,cynip_generationxx[[i]]]<-1/length(cynip_generationxx[[i]])
-tiplabels(pie = cynip_generationpp, piecol = cynip_generationcols, cex=0.15)
-par(fg="black")
+tiplabels(pie = cynip_generationpp, piecol = cynip_generationcols, cex=0.3)
+par(fg="white")
 piecol <- cynip_generationcols
 for(i in 1:ncol(cynip_generationasr)){
 	cynip_generationnn <- strsplit(colnames(cynip_generationasr)[i],"+", fixed=TRUE)[[1]]
@@ -151,12 +151,12 @@ for(i in 1:ncol(cynip_generationasr)){
 	else piecol[i]<-"black"
 }
 names(piecol)<-colnames(cynip_generationasr)
-par(fg="transparent")
-nodelabels(pie = cynip_generationasr, piecol = cynip_generationcols,cex=0.25)
+par(fg="white")
+nodelabels(pie = cynip_generationasr, piecol = cynip_generationcols,cex=0.40)
 par(fg="black")
-legend("left", c("Asexual", "Sexual", "Asexual+Sexual"), pch = 21, pt.bg = c("blue", "red", "yellow"), pt.cex = 3, title = "Gall Former Generation", cex = 1.5)
+legend("left", c("Asexual", "Sexual"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 3, title = "Gall Former Generation", cex = 1.5)
 
-#dev.off()
+dev.off()
 ```
 
 ### Mono/Polythalamous

@@ -33,7 +33,7 @@ traits <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-p
 #Import
 S <- readNexus(tree)
 #Rooting the phylogeny based on a version of the tree with an outgroup and plotting
-root.phylo(S, 1, resolve.root = T)
+root.phylo(S, 28, resolve.root = T)
 plot.phylo(S, align.tip.label = T, use.edge.length = F, root.edge = T)
 ```
 
@@ -62,7 +62,7 @@ fitER <- ace(oaksection, S, model = "ER", type = "discrete")
 ##### Ancestral State Reconstruction
 
 ```{r fig.height=10, fig.width=20, fig.align='center'}
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
 
 oak_section <- setNames(data$oak_section, rownames(data))
 levels(oak_section) <- unique(data$oak_section)
@@ -83,7 +83,7 @@ nodelabels( node = 1:S$Nnode+Ntip(S),
 tiplabels(pie = to.matrix(oak_section, sort(unique(oak_section))), piecol = oak_sectioncols, cex = 0.15)
 legend("left", c("Lobatae","Quercus", "Virentes", "Quercus+Virentes"), pch = 21, pt.bg = c("red", "blue", "green", "black"), pt.cex = 3, title = "Oak Section", cex = 1.5)
 
-dev.off()
+#dev.off()
 ```
 
 ### Cynip Generation
@@ -490,7 +490,7 @@ for(i in 1:Ntip(S))
 		locationX[[S$tip.label[i]]]]<-
 		rep(1/length(locationX[[S$tip.label[i]]]),
 		length(locationX[[S$tip.label[i]]]))
-locationcols <- setNames(c("blue", "red", "yellow", "black", "brown", "purple", "orange"),
+locationcols <- setNames(c("blue", "red", "yellow", "black"),
 	c("leaf", "stem", "acorn", "bud"))
 par(fg="black")
 location <- setNames(data$location, data$Synergus)
@@ -510,9 +510,42 @@ names(piecol)<-colnames(locationasr)
 par(fg="transparent")
 nodelabels(pie = locationasr, piecol = locationcols,cex=0.25)
 par(fg="black")
-legend("left", c("leaf", "stem", "stem+leaf", "petiole+stem", "acorn", "bud", "bud+leaf+acorn"), pch = 21, pt.bg = c("blue", "red", "yellow", "black", "brown", "purple", "orange"), pt.cex = 3, title = "INSERT FORMAL location", cex = 1.5)
-
+legend("left", c("leaf", "stem", "acorn", "bud"), pch = 21, pt.bg = c("blue", "red", "yellow", "black"), pt.cex = 3, title = "INSERT FORMAL location", cex = 1.5)
 #dev.off()
+
+locationpp <- matrix(0, length(location), 7, dimnames = list(names(location), c("leaf", "stem", "stem+leaf", "petiole+stem", "acorn", "bud", "bud+leaf+acorn")))
+plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
+locationX <- strsplit(setNames(as.character(location_rate.mat), names(location_rate.mat)),"+", fixed=TRUE)
+pies <- matrix(0, Ntip(S),4,
+	dimnames=list(S$tip.label,
+	c("leaf", "stem", "acorn", "bud")))
+for(i in 1:Ntip(S)) 
+	pies[S$tip.label[i],
+		locationX[[S$tip.label[i]]]]<-
+		rep(1/length(locationX[[S$tip.label[i]]]),
+		length(locationX[[S$tip.label[i]]]))
+locationcols <- setNames(c("blue", "red", "yellow", "green"),
+	c("0", "1"))
+par(fg="black")
+location <- setNames(data$location, data$Synergus)
+locationxx <- strsplit(as.character(location), split = "+", fixed = T)
+locationpp <- matrix(0, length(location), 7, dimnames = list(names(location), c("leaf", "stem", "stem+leaf", "petiole+stem", "acorn", "bud", "bud+leaf+acorn")))
+for (i in 1:nrow(locationpp)) locationpp[i,locationxx[[i]]]<-1/length(locationxx[[i]])
+tiplabels(pie = locationpp, piecol = locationcols, cex=0.15)
+par(fg="black")
+piecol <- locationcols
+for(i in 1:ncol(locationasr)){
+	locationnn <- strsplit(colnames(locationasr)[i],"+", fixed=TRUE)[[1]]
+	if(length(locationnn)==1) piecol[i]<-locationcols[locationnn]
+	else if(length(locationnn)==2) piecol[i] <- colorRampPalette(locationcols[locationnn])(3)[2]
+	else piecol[i]<-"black"
+}
+names(piecol)<-colnames(locationasr)
+par(fg="transparent")
+nodelabels(pie = locationasr, piecol = locationcols,cex=0.25)
+par(fg="black")
+legend("left", c("leaf", "stem", "acorn", "bud"), pch = 21, pt.bg = c("blue", "red", "yellow", "green"), pt.cex = 3, title = "Gall Former Tissue", cex = 1.5)
+
 ```
 
 

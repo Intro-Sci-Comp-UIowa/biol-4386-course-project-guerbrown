@@ -9,37 +9,33 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Purpose: Computationally simulate stochastic mapping of ancestral states in the Synergus inquiline phylogeny using previously established methods for deciding models.
+### Purpose: Computationally simulate stochastic mapping of ancestral states in the Synergus phylogeny using previously established methods for deciding models.
 
-##### Initialization
-```{r message=TRUE, warning=TRUE}
+#### Initialization
+
+```{r message=TRUE, warning=FALSE}
 library(ape)
 library(phytools)
 library(geiger)
 library(corHMM)
 ```
 
-##### Path to data
+#### Path to data
 
-```{r}
+```{r warning=FALSE, include=FALSE}
 setwd("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling")
 tree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_traitmodeling_SynTree_guerbrown.nex"
 traits <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_traitmodeling_TraitData_guerbrown.csv"
 ```
 
-##### Synergus Tree Import
-
-```{r}
-#Import
-S <- readNexus(tree)
-#Rooting the phylogeny based on a version of the tree with an outgroup and plotting
-root.phylo(S, 28, resolve.root = T)
-plot.phylo(S, align.tip.label = T, use.edge.length = F, root.edge = T)
-```
-
 ##### Data Import
 
-```{r}
+```{r include=FALSE}
+# Import
+S <- readNexus(tree)
+# Rooting the phylogeny based on a version of the tree with an outgroup and plotting
+root.phylo(S, 28, resolve.root = T)
+# .csv
 data <- read.csv(traits, row.names = 1)
 ```
 
@@ -49,82 +45,109 @@ data <- read.csv(traits, row.names = 1)
 
 ### Oak Section 
 
-##### Model Recapitulation
+### Model Recapitulation
+##### Note: This first chunk of code will contain annotations, the others will not. Please see the README.md for more information on generating this same procedure.
 
-```{r}
-oaksection <- setNames(data$oak_section, rownames(data))
-# Rename the levels of the variable 
-levels(oaksection) <- unique(data$oak_section)
-# Recapitulation of the best fit model
-fitER <- ace(oaksection, S, model = "ER", type = "discrete")
-```
-
-##### Ancestral State Reconstruction
-
-```{r fig.height=10, fig.width=20, fig.align='center'}
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
-
+```{r oak_section POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 oak_section <- setNames(data$oak_section, rownames(data))
+# Rename the levels of the variable 
 levels(oak_section) <- unique(data$oak_section)
-oak_section.ER <- ace(oak_section, S, model = "ER", type = "discrete")
+# Recapitulation of the best fit model
+oak_section.ER <- fitpolyMk(S, oak_section, model = "ER")
+#pull states off the fitted model object
+oak_sectionxx <- apply(oak_section.ER$data,1,
+            function(x,ss) ss[which(x==1)],
+            ss=colnames(oak_section.ER$data))
+#corHMM does not like to work with + so let's replace those with /
+oak_sectionxx <- gsub("+","/", oak_sectionxx, fixed=TRUE)
+#build corHMM data frame
+oak_section.data <- data.frame(Genus_sp = names(oak_sectionxx), oak_section = oak_sectionxx)
+#Pull out model design matrix from the fitted object
+oak_section_rate.mat <- oak_section.ER$index.matrix
+oak_section_rate.mat[oak_section_rate.mat==0] <- NA
+colnames(oak_section_rate.mat) <- rownames(oak_section_rate.mat) <- gsub("+","/", colnames(oak_section_rate.mat), fixed=TRUE)
+oak_sectionind <- order(colnames(oak_section_rate.mat))
+oak_section_rate.mat <- oak_section_rate.mat[oak_sectionind, oak_sectionind]
+#Ancestral States
+oak_section_fit.marginal <- corHMM(S, oak_section.data,
+                     rate.mat = oak_section_rate.mat,
+                     node.states = "marginal",
+                     rate.cat = 1, p = oak_section.ER$rates,
+                     root.p = oak_section.ER$pi)
+#Marginal states are stores in $states. Extract this and ensure the model is consistent
+oak_sectionasr <- oak_section_fit.marginal$states
+colnames(oak_sectionasr) <- colnames(oak_section_rate.mat)
+colnames(oak_sectionasr) <- gsub("/","+", colnames(oak_sectionasr))
 
-oak_sectioncols <- c("red", "blue", "green", "black")
-plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
-oak_section_DATA <- setNames(data$oak_section, data$Synergus)
-oak_sectionxx <- strsplit(as.character(oak_section_DATA), split = "+", fixed = T)
-oak_sectionpp <- matrix(0, length(oak_section_DATA), 3, dimnames = list(names(oak_section_DATA), c("Quercus", "Lobatae","Virentes")))
+# Adding these to the figure
+
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
+
+oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
+plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
+oak_sectionX <- strsplit(setNames(as.character(oak_section_rate.mat), names(oak_section_rate.mat)),"+", fixed=TRUE)
+pies <- matrix(0, Ntip(S),3,
+	dimnames=list(S$tip.label,
+	c("1", "2", "3")))
+for(i in 1:Ntip(S)) 
+	pies[S$tip.label[i],
+		oak_sectionX[[S$tip.label[i]]]]<-
+		rep(1/length(oak_sectionX[[S$tip.label[i]]]),
+		length(oak_sectionX[[S$tip.label[i]]]))
+oak_sectioncols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
+	c("Quercus", "Lobatae","Virentes"))
+par(fg="white")
+oak_section <- setNames(data$oak_section, data$Synergus)
+oak_sectionxx <- strsplit(as.character(oak_section), split = "+", fixed = T)
+oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
 for (i in 1:nrow(oak_sectionpp)) oak_sectionpp[i,oak_sectionxx[[i]]]<-1/length(oak_sectionxx[[i]])
-par(fg = "transparent")
-ape::tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex = 0.15)
-par(fg = "black")
-tiplabels(pie = to.matrix(oak_section, sort(unique(oak_section))),piecol = oak_sectioncols, cex = 0.15)
-nodelabels( node = 1:S$Nnode+Ntip(S),
-    pie = oak_section.ER$lik.anc, piecol = oak_sectioncols, cex=0.25)
-tiplabels(pie = to.matrix(oak_section, sort(unique(oak_section))), piecol = oak_sectioncols, cex = 0.15)
-legend("left", c("Lobatae","Quercus", "Virentes", "Quercus+Virentes"), pch = 21, pt.bg = c("red", "blue", "green", "black"), pt.cex = 3, title = "Oak Section", cex = 1.5)
+tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex=0.3)
+par(fg="white")
+piecol <- oak_sectioncols
+for(i in 1:ncol(oak_sectionasr)){
+	oak_sectionnn <- strsplit(colnames(oak_sectionasr)[i],"+", fixed=TRUE)[[1]]
+	if(length(oak_sectionnn)==1) piecol[i] <- oak_sectioncols[oak_sectionnn]
+	else if(length(oak_sectionnn)==2) piecol[i] <- colorRampPalette(oak_sectioncols[oak_sectionnn])(3)[2]
+	else piecol[i]<-"black"
+}
+names(piecol)<-colnames(oak_sectionasr)
+par(fg="white")
+nodelabels(pie = oak_sectionasr, piecol = oak_sectioncols,cex=0.40)
+par(fg="black")
+legend("bottom", c("Lobatae", "Quercus","Virentes"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Oak Section", cex = 1)
 
-#dev.off()
+dev.off()
 ```
 
 ### Cynip Generation
 
-```{r cynip_generation POLYMORPHIC, fig.height=10, fig.width=20, fig.align='center'}
+```{r cynip_generation POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 cynip_generation <- setNames(data$cynip_generation, rownames(data))
-# Rename the levels of the variable 
 levels(cynip_generation) <- unique(data$cynip_generation)
-# Recapitulation of the best fit model
 cynip_generation.ER <- fitpolyMk(S, cynip_generation, model = "ER")
-#pull states off the fitted model object
 cynip_generationxx <- apply(cynip_generation.ER$data,1,
             function(x,ss) ss[which(x==1)],
             ss=colnames(cynip_generation.ER$data))
-#corHMM does not like to work with + so let's replace those with /
 cynip_generationxx <- gsub("+","/", cynip_generationxx, fixed=TRUE)
-#build corHMM data frame
 cynip_generation.data <- data.frame(Genus_sp = names(cynip_generationxx), cynip_generation = cynip_generationxx)
-#Pull out model design matrix from the fitted object
 cynip_generation_rate.mat <- cynip_generation.ER$index.matrix
 cynip_generation_rate.mat[cynip_generation_rate.mat==0] <- NA
 colnames(cynip_generation_rate.mat) <- rownames(cynip_generation_rate.mat) <- gsub("+","/", colnames(cynip_generation_rate.mat), fixed=TRUE)
 cynip_generationind <- order(colnames(cynip_generation_rate.mat))
 cynip_generation_rate.mat <- cynip_generation_rate.mat[cynip_generationind, cynip_generationind]
-#Ancestral States
 cynip_generation_fit.marginal <- corHMM(S, cynip_generation.data,
                      rate.mat = cynip_generation_rate.mat,
                      node.states = "marginal",
                      rate.cat = 1, p = cynip_generation.ER$rates,
                      root.p = cynip_generation.ER$pi)
-#Marginal states are stores in $states. Extract this and ensure the model is consistent
 cynip_generationasr <- cynip_generation_fit.marginal$states
 colnames(cynip_generationasr) <- colnames(cynip_generation_rate.mat)
 colnames(cynip_generationasr) <- gsub("/","+", colnames(cynip_generationasr))
 
-# Adding these to the figure
-
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cynip_generation_guerbrown.svg", width = 20, height = 10)
 
 cynip_generationpp <- matrix(0, length(cynip_generation), 3, dimnames = list(names(cynip_generation), c("Asexual", "Sexual", "Asexual+Sexual")))
-plot.phylo(S, type = "fan", cex = 1.5, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
+plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 cynip_generationX <- strsplit(setNames(as.character(cynip_generation_rate.mat), names(cynip_generation_rate.mat)),"+", fixed=TRUE)
 pies <- matrix(0, Ntip(S),2,
 	dimnames=list(S$tip.label,
@@ -154,14 +177,14 @@ names(piecol)<-colnames(cynip_generationasr)
 par(fg="white")
 nodelabels(pie = cynip_generationasr, piecol = cynip_generationcols,cex=0.40)
 par(fg="black")
-legend("left", c("Asexual", "Sexual"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 3, title = "Gall Former Generation", cex = 1.5)
+legend("bottom", c("Asexual", "Sexual"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Gall Former Generation", cex = 1)
 
 dev.off()
 ```
 
 ### Mono/Polythalamous
 
-```{r mono.polythalamous POLYMORPHIC, fig.height=10, fig.width=20, fig.align='center'}
+```{r mono.polythalamous POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 mono.polythalamous <- setNames(data$mono.polythalamous, rownames(data))
 levels(mono.polythalamous) <- unique(data$mono.polythalamous)
 mono.polythalamous.ER <- fitpolyMk(S, mono.polythalamous, model = "ER")
@@ -184,10 +207,10 @@ mono.polythalamousasr <- mono.polythalamous_fit.marginal$states
 colnames(mono.polythalamousasr) <- colnames(mono.polythalamous_rate.mat)
 colnames(mono.polythalamousasr) <- gsub("/","+", colnames(mono.polythalamousasr))
 
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_monopolythalamous_guerbrown.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_mono.polythalamous_guerbrown.svg", width = 20, height = 10)
 
-mono.polythalamouspp <- matrix(0, length(mono.polythalamous), 3, dimnames = list(names(mono.polythalamous), c("0" ,"1", "1+0")))
-plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
+mono.polythalamouspp <- matrix(0, length(mono.polythalamous), 3, dimnames = list(names(mono.polythalamous), c("0", "1", "0+1")))
+plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 mono.polythalamousX <- strsplit(setNames(as.character(mono.polythalamous_rate.mat), names(mono.polythalamous_rate.mat)),"+", fixed=TRUE)
 pies <- matrix(0, Ntip(S),2,
 	dimnames=list(S$tip.label,
@@ -197,37 +220,36 @@ for(i in 1:Ntip(S))
 		mono.polythalamousX[[S$tip.label[i]]]]<-
 		rep(1/length(mono.polythalamousX[[S$tip.label[i]]]),
 		length(mono.polythalamousX[[S$tip.label[i]]]))
-mono.polythalamouscols <- setNames(c("blue", "red"),
+mono.polythalamouscols <- setNames(c("firebrick1", "dodgerblue1"),
 	c("0", "1"))
-par(fg="black")
+par(fg="white")
 mono.polythalamous <- setNames(data$mono.polythalamous, data$Synergus)
 mono.polythalamousxx <- strsplit(as.character(mono.polythalamous), split = "+", fixed = T)
 mono.polythalamouspp <- matrix(0, length(mono.polythalamous), 3, dimnames = list(names(mono.polythalamous), c("0", "1", "0+1")))
 for (i in 1:nrow(mono.polythalamouspp)) mono.polythalamouspp[i,mono.polythalamousxx[[i]]]<-1/length(mono.polythalamousxx[[i]])
-tiplabels(pie = mono.polythalamouspp, piecol = mono.polythalamouscols, cex=0.15)
-par(fg="black")
+tiplabels(pie = mono.polythalamouspp, piecol = mono.polythalamouscols, cex=0.3)
+par(fg="white")
 piecol <- mono.polythalamouscols
 for(i in 1:ncol(mono.polythalamousasr)){
 	mono.polythalamousnn <- strsplit(colnames(mono.polythalamousasr)[i],"+", fixed=TRUE)[[1]]
-	if(length(mono.polythalamousnn)==1) piecol[i]<-mono.polythalamouscols[mono.polythalamousnn]
+	if(length(mono.polythalamousnn)==1) piecol[i] <- mono.polythalamouscols[mono.polythalamousnn]
 	else if(length(mono.polythalamousnn)==2) piecol[i] <- colorRampPalette(mono.polythalamouscols[mono.polythalamousnn])(3)[2]
 	else piecol[i]<-"black"
 }
 names(piecol)<-colnames(mono.polythalamousasr)
-par(fg="transparent")
-nodelabels(pie = mono.polythalamousasr, piecol = mono.polythalamouscols,cex=0.25)
+par(fg="white")
+nodelabels(pie = mono.polythalamousasr, piecol = mono.polythalamouscols,cex=0.40)
 par(fg="black")
-legend("left", c("Monothalamous", "Polythalamous"), pch = 21, pt.bg = c("blue", "red"), pt.cex = 3, title = "Gall Former Tissue", cex = 1.5)
+legend("bottom", c("Monothalamous", "Polythalamous"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Chamber/Cells of Cynipini", cex = 1)
 
 dev.off()
 ```
 
 ### Gall Size
 
-```{r gall_size POLYMORPHIC, fig.height=10, fig.width=20, fig.align='center'}
+```{r gall_size POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 gall_size <- setNames(data$gall_size, rownames(data))
 levels(gall_size) <- unique(data$gall_size)
-levels(gall_size)
 gall_size.ER <- fitpolyMk(S, gall_size, model = "ER")
 gall_sizexx <- apply(gall_size.ER$data,1,
             function(x,ss) ss[which(x==1)],
@@ -240,7 +262,7 @@ colnames(gall_size_rate.mat) <- rownames(gall_size_rate.mat) <- gsub("+","/", co
 gall_sizeind <- order(colnames(gall_size_rate.mat))
 gall_size_rate.mat <- gall_size_rate.mat[gall_sizeind, gall_sizeind]
 gall_size_fit.marginal <- corHMM(S, gall_size.data,
-                     rate.mat = gall_size_rate.mat,
+                     rate.mat = gall_size_rate.mat,:
                      node.states = "marginal",
                      rate.cat = 1, p = gall_size.ER$rates,
                      root.p = gall_size.ER$pi)
@@ -251,7 +273,7 @@ colnames(gall_sizeasr) <- gsub("/","+", colnames(gall_sizeasr))
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_gall_size_guerbrown.svg", width = 20, height = 10)
 
 gall_sizepp <- matrix(0, length(gall_size), 5, dimnames = list(names(gall_size), c("1", "2", "3", "1+2", "2+3")))
-plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
+plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 gall_sizeX <- strsplit(setNames(as.character(gall_size_rate.mat), names(gall_size_rate.mat)),"+", fixed=TRUE)
 pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
@@ -261,15 +283,15 @@ for(i in 1:Ntip(S))
 		gall_sizeX[[S$tip.label[i]]]]<-
 		rep(1/length(gall_sizeX[[S$tip.label[i]]]),
 		length(gall_sizeX[[S$tip.label[i]]]))
-gall_sizecols <- setNames(c("blue", "red", "yellow"),
+gall_sizecols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 	c("1", "2", "3"))
-par(fg="black")
+par(fg="white")
 gall_size <- setNames(data$gall_size, data$Synergus)
 gall_sizexx <- strsplit(as.character(gall_size), split = "+", fixed = T)
 gall_sizepp <- matrix(0, length(gall_size), 5, dimnames = list(names(gall_size), c("1", "2", "3", "1+2", "2+3")))
 for (i in 1:nrow(gall_sizepp)) gall_sizepp[i,gall_sizexx[[i]]]<-1/length(gall_sizexx[[i]])
-tiplabels(pie = gall_sizepp, piecol = gall_sizecols, cex=0.15)
-par(fg="black")
+tiplabels(pie = gall_sizepp, piecol = gall_sizecols, cex=0.3)
+par(fg="white")
 piecol <- gall_sizecols
 for(i in 1:ncol(gall_sizeasr)){
 	gall_sizenn <- strsplit(colnames(gall_sizeasr)[i],"+", fixed=TRUE)[[1]]
@@ -278,37 +300,73 @@ for(i in 1:ncol(gall_sizeasr)){
 	else piecol[i]<-"black"
 }
 names(piecol)<-colnames(gall_sizeasr)
-par(fg="transparent")
-nodelabels(pie = gall_sizeasr, piecol = gall_sizecols,cex=0.25)
+par(fg="white")
+nodelabels(pie = gall_sizeasr, piecol = gall_sizecols,cex=0.40)
 par(fg="black")
-legend("left", c("1", "2", "3"), pch = 21, pt.bg = c("blue", "red", "yellow"), pt.cex = 3, title = "Gall Size", cex = 1.5)
+legend("bottom", c("1", "2", "3"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Gall Size", cex = 1)
 
 dev.off()
 ```
 
-### Cluster
+### cluster
 
-```{r cluster DISCRETE, fig.height=10, fig.width=20, fig.align='center'}
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cluster_guerbrown.svg", width = 20, height = 10)
-
+```{r cluster POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 cluster <- setNames(data$cluster, rownames(data))
 levels(cluster) <- unique(data$cluster)
-cluster.ER <- ace(cluster, S, model = "ER", type = "discrete")
+cluster.ER <- fitpolyMk(S, cluster, model = "ER")
+clusterxx <- apply(cluster.ER$data,1,
+            function(x,ss) ss[which(x==1)],
+            ss=colnames(cluster.ER$data))
+clusterxx <- gsub("+","/", clusterxx, fixed=TRUE)
+cluster.data <- data.frame(Genus_sp = names(clusterxx), cluster = clusterxx)
+cluster_rate.mat <- cluster.ER$index.matrix
+cluster_rate.mat[cluster_rate.mat==0] <- NA
+colnames(cluster_rate.mat) <- rownames(cluster_rate.mat) <- gsub("+","/", colnames(cluster_rate.mat), fixed=TRUE)
+clusterind <- order(colnames(cluster_rate.mat))
+cluster_rate.mat <- cluster_rate.mat[clusterind, clusterind]
+cluster_fit.marginal <- corHMM(S, cluster.data,
+                     rate.mat = cluster_rate.mat,
+                     node.states = "marginal",
+                     rate.cat = 1, p = cluster.ER$rates,
+                     root.p = cluster.ER$pi)
+clusterasr <- cluster_fit.marginal$states
+colnames(clusterasr) <- colnames(cluster_rate.mat)
+colnames(clusterasr) <- gsub("/","+", colnames(clusterasr))
 
-clustercols <- c("red", "blue", "green", "black")
-plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
-cluster_DATA <- setNames(data$cluster, data$Synergus)
-clusterxx <- strsplit(as.character(cluster_DATA), split = "+", fixed = T)
-clusterpp <- matrix(0, length(cluster_DATA), 3, dimnames = list(names(cluster_DATA), c("0", "0+1", "1")))
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cluster_guerbrown.svg", width = 20, height = 10)
+
+clusterpp <- matrix(0, length(cluster), 3, dimnames = list(names(cluster), c("0", "1", "0+1")))
+plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
+clusterX <- strsplit(setNames(as.character(cluster_rate.mat), names(cluster_rate.mat)),"+", fixed=TRUE)
+pies <- matrix(0, Ntip(S),2,
+	dimnames=list(S$tip.label,
+	c("0", "1")))
+for(i in 1:Ntip(S)) 
+	pies[S$tip.label[i],
+		clusterX[[S$tip.label[i]]]]<-
+		rep(1/length(clusterX[[S$tip.label[i]]]),
+		length(clusterX[[S$tip.label[i]]]))
+clustercols <- setNames(c("firebrick1", "dodgerblue1"),
+	c("0", "1"))
+par(fg="white")
+cluster <- setNames(data$cluster, data$Synergus)
+clusterxx <- strsplit(as.character(cluster), split = "+", fixed = T)
+clusterpp <- matrix(0, length(cluster), 3, dimnames = list(names(cluster), c("0", "1", "0+1")))
 for (i in 1:nrow(clusterpp)) clusterpp[i,clusterxx[[i]]]<-1/length(clusterxx[[i]])
-par(fg = "transparent")
-ape::tiplabels(pie = clusterpp, piecol = clustercols, cex = 0.15)
-par(fg = "black")
-tiplabels(pie = to.matrix(cluster, sort(unique(cluster))),piecol = clustercols, cex = 0.15)
-nodelabels( node = 1:S$Nnode+Ntip(S),
-    pie = cluster.ER$lik.anc, piecol = clustercols, cex=0.25)
-tiplabels(pie = to.matrix(cluster, sort(unique(cluster))), piecol = clustercols, cex = 0.15)
-legend("left", c("0", "0+1", "1"), pch = 21, pt.bg = c("red", "blue", "green", "black"), pt.cex = 3, title = "Clustered Galls", cex = 1.5)
+tiplabels(pie = clusterpp, piecol = clustercols, cex=0.3)
+par(fg="white")
+piecol <- clustercols
+for(i in 1:ncol(clusterasr)){
+	clusternn <- strsplit(colnames(clusterasr)[i],"+", fixed=TRUE)[[1]]
+	if(length(clusternn)==1) piecol[i] <- clustercols[clusternn]
+	else if(length(clusternn)==2) piecol[i] <- colorRampPalette(clustercols[clusternn])(3)[2]
+	else piecol[i]<-"black"
+}
+names(piecol)<-colnames(clusterasr)
+par(fg="white")
+nodelabels(pie = clusterasr, piecol = clustercols,cex=0.40)
+par(fg="black")
+legend("bottom", c("Single Gall", "Cluster Gall"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Gall Clustering", cex = 1)
 
 dev.off()
 ```

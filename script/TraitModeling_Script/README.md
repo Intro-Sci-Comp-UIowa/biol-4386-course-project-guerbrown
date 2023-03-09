@@ -30,34 +30,37 @@ $ ./inqcophy_Traitmodeling_file.name
 - Modify any "INSERT LABLES/INSERT COMBO LABELS/INSERT FORMAL NAME" with the appropriate information
 - Run Script
 
-### Discrete Trait Template
+## Discrete Trait Template
 
-```{r NAME DISCRETE, fig.height=10, fig.width=20, fig.align='center'}
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_NAME_guerbrown.svg", width = 20, height = 10)
+### NAME
 
-NAME <- setNames(data$NAME, rownames(data))
-levels(NAME) <- unique(data$NAME)
-NAME.ER <- ace(NAME, S, model = "ER", type = "discrete")
+```{r NAME DISCRETE, fig.height=7, fig.width=12.5, fig.align='center'}
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_NAME_guerbrown.svg", width = 20, height = 10)
 
-NAMEcols <- c("red", "blue", "green", "black")
-plot.phylo(S, type = "fan", cex = 2, align.tip.label = F, lwd = 3.5, label.offset = 0.1, use.edge.length = F, open.angle =  165)
-NAME_DATA <- setNames(data$NAME, data$Synergus)
-NAMExx <- strsplit(as.character(NAME_DATA), split = "+", fixed = T)
-NAMEpp <- matrix(0, length(NAME_DATA), 3, dimnames = list(names(NAME_DATA), c(INSERT LABELS)))
-for (i in 1:nrow(NAMEpp)) NAMEpp[i,NAMExx[[i]]]<-1/length(NAMExx[[i]])
+NAME <- setNames(data$wool, rownames(data))
+levels(NAME) <- unique(data$wool)
+NAME.ER <- ace(wool, S, model = "ER", type = "discrete")
+
+NAMEcols <- c("firebrick1", "dodgerblue1")
+plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
+NAME_DATA <- setNames(data$wool, data$Synergus)
+NAMExx <- strsplit(as.character(wool_DATA), split = "+", fixed = T)
+NAMEpp <- matrix(0, length(wool_DATA), 2, dimnames = list(names(wool_DATA), c(INSERT LABELS)))
+for (i in 1:nrow(NAMEpp)) woolpp[i,woolxx[[i]]]<-1/length(woolxx[[i]])
 par(fg = "transparent")
-ape::tiplabels(pie = NAMEpp, piecol = NAMEcols, cex = 0.15)
-par(fg = "black")
-tiplabels(pie = to.matrix(NAME, sort(unique(NAME))),piecol = NAMEcols, cex = 0.15)
+ape::tiplabels(pie = NAMEpp, piecol = woolcols, cex = 0.15)
+par(fg = "white")
+tiplabels(pie = to.matrix(NAME, sort(unique(wool))),piecol = woolcols, cex = 0.3)
 nodelabels( node = 1:S$Nnode+Ntip(S),
-    pie = NAME.ER$lik.anc, piecol = NAMEcols, cex=0.25)
-tiplabels(pie = to.matrix(NAME, sort(unique(NAME))), piecol = NAMEcols, cex = 0.15)
-legend("left", c(INSERT LABELS), pch = 21, pt.bg = c("red", "blue", "green", "black"), pt.cex = 3, title = "INSERT FORMAL NAME", cex = 1.5)
+    pie = NAME.ER$lik.anc, piecol = woolcols, cex=0.4)
+tiplabels(pie = to.matrix(NAME, sort(unique(wool))), piecol = woolcols, cex = 0.3)
+par(fg = "black")
+legend("bottom", c(INSERT LABELS, pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = NAME, cex = 1)
 
-#dev.off()
+dev.off()
 ```
 
-### Polymorphic Trait Template
+## Polymorphic Trait Template
 
 ### NAME
 

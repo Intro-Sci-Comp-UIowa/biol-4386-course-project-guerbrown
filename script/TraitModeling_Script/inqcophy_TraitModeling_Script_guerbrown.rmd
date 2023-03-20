@@ -28,7 +28,7 @@ tree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-pro
 traits <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_traitmodeling_TraitData_guerbrown.csv"
 ```
 
-##### Data Import
+### Data Import
 
 ```{r include=FALSE}
 # Import
@@ -40,82 +40,101 @@ data <- read.csv(traits, row.names = 1)
 ```
 
 ### Ancestral State Reconstructions
-##### To do this, I will be using the most likely model for the reconstruction of each trait. These models were decided using a seperate script, which is also provided in this folder. This script will not be run by default as it is extremely computationally expensive. I would recommend running it as a job through an HPC.  
-##### One additional note, some of these models will be consider variables discrete and other polymorphic. This was decided by G. Brown and A. Forbes depending on ecology, parsimony, and state reconstruction accuracy. 
+##### To do this, I will be using the most likely model for the reconstruction of each trait. These models were decided using a seperate script, which is also provided in this folder of the repo. This script will not be run by default as it is extremely computationally expensive. I would recommend running it as a job through an HPC. We completed this job in about an hour running under the University of Iowa's Interactive Data Analytics Service with 12 cpu cores and 16gb of RAM. 
+##### One additional note, some of these models will be consider variables discrete and other polymorphic. This was decided by G. Brown and A. Forbes depending on ecology, parsimony, and state reconstruction accuracy. Notes on decisions will be left in the modeling procedure script.
 
-### Oak Section 
+#### A note on code annotation: This script is over 1000 lines long. To ensure others can view this code with rationale behind particular decisions, I will be annotating *some* of the script. Since we are utilizing two types of modeling procedures (polymorphic and discrete), I will annotate only the **first** examples of these in this script. 
 
-### Model Recapitulation
-##### Note: This first chunk of code will contain annotations, the others will not. Please see the README.md for more information on generating this same procedure.
+## Modeling Graphics
+
+### Oak Section (Annotated Polymorphic)
+
+#### Model Recapitulation
+##### Note: These models are not all hand-typed. Instead, we developed templates that can be found in the README.md file of the /script folder. Please see that documentation if you are attempting to copy any of this process and do not wish to hand-copy parts of this script.
 
 ```{r oak_section POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
+# First, lets isolate the variable we want to graphically model from the original imported data frame
 oak_section <- setNames(data$oak_section, rownames(data))
 # Rename the levels of the variable 
 levels(oak_section) <- unique(data$oak_section)
-# Recapitulation of the best fit model
+# Recapitulation of the best fit model (see model selection script)
 oak_section.ER <- fitpolyMk(S, oak_section, model = "ER")
-#pull states off the fitted model object
+# pull states off the fitted model object
 oak_sectionxx <- apply(oak_section.ER$data,1,
             function(x,ss) ss[which(x==1)],
             ss=colnames(oak_section.ER$data))
-#corHMM does not like to work with + so let's replace those with /
+# corHMM does not like to work with + so let's replace those with /
 oak_sectionxx <- gsub("+","/", oak_sectionxx, fixed=TRUE)
-#build corHMM data frame
+# build corHMM data frame
 oak_section.data <- data.frame(Genus_sp = names(oak_sectionxx), oak_section = oak_sectionxx)
-#Pull out model design matrix from the fitted object
+# Pull out model design matrix from the fitted object
 oak_section_rate.mat <- oak_section.ER$index.matrix
+# Set any values of 0 in the design matrix to NA
 oak_section_rate.mat[oak_section_rate.mat==0] <- NA
+# Replace previous / with + in the new data design matrix
 colnames(oak_section_rate.mat) <- rownames(oak_section_rate.mat) <- gsub("+","/", colnames(oak_section_rate.mat), fixed=TRUE)
+# Order these from highest to lowest and name it something different that will allow us to transition the design matrix into something corHMM can utilize
 oak_sectionind <- order(colnames(oak_section_rate.mat))
 oak_section_rate.mat <- oak_section_rate.mat[oak_sectionind, oak_sectionind]
-#Ancestral States
+# Ancestral States (this part of the analysis is compiling everything we've extracted that has importance)
 oak_section_fit.marginal <- corHMM(S, oak_section.data,
                      rate.mat = oak_section_rate.mat,
                      node.states = "marginal",
                      rate.cat = 1, p = oak_section.ER$rates,
                      root.p = oak_section.ER$pi)
-#Marginal states are stores in $states. Extract this and ensure the model is consistent
+# Marginal states are stores in $states. Extract this and ensure the model is consistent
 oak_sectionasr <- oak_section_fit.marginal$states
 colnames(oak_sectionasr) <- colnames(oak_section_rate.mat)
 colnames(oak_sectionasr) <- gsub("/","+", colnames(oak_sectionasr))
 
-# Adding these to the figure
-
+# Prepare a graphical output for the phylogeny we are about to create
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
 
-oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
+
+# Plot the tree in a phylo space with the layout of your choosing
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
+# Split the names of the trait so that the data frame recognizes traits with + as a combination of two or more traits
 oak_sectionX <- strsplit(setNames(as.character(oak_section_rate.mat), names(oak_section_rate.mat)),"+", fixed=TRUE)
+# Create pie charts of the traits you wish to graph on the tip labels. If you do not wish to represent a polymorphic trait as a discrete trait at tips, please run this **without** the code above.
 pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
 	c("1", "2", "3")))
+# Add data to the values for our pie charts
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		oak_sectionX[[S$tip.label[i]]]]<-
 		rep(1/length(oak_sectionX[[S$tip.label[i]]]),
 		length(oak_sectionX[[S$tip.label[i]]]))
+# Provide a set of color variables that we can use later
 oak_sectioncols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 	c("Quercus", "Lobatae","Virentes"))
 par(fg="white")
-oak_section <- setNames(data$oak_section, data$Synergus)
-oak_sectionxx <- strsplit(as.character(oak_section), split = "+", fixed = T)
+# Create a matrix of the trait and provide the names for its dimensions. 
 oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
+# Add data to this matrix. This line of code is a BEAST to understand. In short, it is adding values of the pp matrix from the xx data frame then dividing it so that we have proportional values based on a scale of 100. I say it is so complex because the spacing of the code is dense and there are a lot of specifiers one may not normally encounter. It is actually quite brilliant but I owe this to L. Revell, whose blog I adapted it from.
 for (i in 1:nrow(oak_sectionpp)) oak_sectionpp[i,oak_sectionxx[[i]]]<-1/length(oak_sectionxx[[i]])
+# Use the pp matrix to add pie charts to the terminal nodes of the phylogeny
 tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex=0.3)
+# Give them a white background for simplicity and beauty
 par(fg="white")
 piecol <- oak_sectioncols
+# Now, we need to add the values for pie charts of internal nodes in the phylogeny. To do this, we will use our extracted states from the marginal states data frame. We will then create a second, newly split (/ instead of +) version of this data frame and where a particular value, or trait exists, we will provide that value with a length of 1. If it has another value, or trait, that is a combination of traits we will give it a length of 2 and then produce a color pallet from mixing the colors of the traits that it is a combination of. So, if a trait is made of two traits, a red and a blue trait, the mixture of the two is represented as purple.
 for(i in 1:ncol(oak_sectionasr)){
 	oak_sectionnn <- strsplit(colnames(oak_sectionasr)[i],"+", fixed=TRUE)[[1]]
 	if(length(oak_sectionnn)==1) piecol[i] <- oak_sectioncols[oak_sectionnn]
 	else if(length(oak_sectionnn)==2) piecol[i] <- colorRampPalette(oak_sectioncols[oak_sectionnn])(3)[2]
 	else piecol[i]<-"black"
 }
-names(piecol)<-colnames(oak_sectionasr)
+# Now, provide the names of the pies using the column names of the modified ...asr data frame
+names(piecol) <- colnames(oak_sectionasr)
 par(fg="white")
+# Finally! We can plot the pie charts of the nodes!
 nodelabels(pie = oak_sectionasr, piecol = oak_sectioncols,cex=0.40)
 par(fg="black")
+# And lastly, provide a legend
 legend("bottom", c("Lobatae", "Quercus","Virentes"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Oak Section", cex = 1)
 
+# Now that we have plotted the object, we need to tell the code to stop saving graphics as an svg. 
 dev.off()
 ```
 
@@ -149,15 +168,15 @@ svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqc
 cynip_generationpp <- matrix(0, length(cynip_generation), 3, dimnames = list(names(cynip_generation), c("Asexual", "Sexual", "Asexual+Sexual")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 cynip_generationX <- strsplit(setNames(as.character(cynip_generation_rate.mat), names(cynip_generation_rate.mat)),"+", fixed=TRUE)
-pies <- matrix(0, Ntip(S),2,
+pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
-	c("Asexual","Sexual")))
+	c("Asexual","Sexual", "Asexual+Sexual")))
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		cynip_generationX[[S$tip.label[i]]]]<-
 		rep(1/length(cynip_generationX[[S$tip.label[i]]]),
 		length(cynip_generationX[[S$tip.label[i]]]))
-cynip_generationcols <- setNames(c("firebrick1", "dodgerblue1"),
+cynip_generationcols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 	c("Asexual","Sexual"))
 par(fg="white")
 cynip_generation <- setNames(data$cynip_generation, data$Synergus)
@@ -177,7 +196,7 @@ names(piecol)<-colnames(cynip_generationasr)
 par(fg="white")
 nodelabels(pie = cynip_generationasr, piecol = cynip_generationcols,cex=0.40)
 par(fg="black")
-legend("bottom", c("Asexual", "Sexual"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Gall Former Generation", cex = 1)
+legend("bottom", c("Asexual", "Sexual", "Asexual+Sexual"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Gall Former Generation", cex = 1)
 
 dev.off()
 ```
@@ -220,7 +239,7 @@ for(i in 1:Ntip(S))
 		mono.polythalamousX[[S$tip.label[i]]]]<-
 		rep(1/length(mono.polythalamousX[[S$tip.label[i]]]),
 		length(mono.polythalamousX[[S$tip.label[i]]]))
-mono.polythalamouscols <- setNames(c("firebrick1", "dodgerblue1"),
+mono.polythalamouscols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 	c("0", "1"))
 par(fg="white")
 mono.polythalamous <- setNames(data$mono.polythalamous, data$Synergus)
@@ -240,7 +259,7 @@ names(piecol)<-colnames(mono.polythalamousasr)
 par(fg="white")
 nodelabels(pie = mono.polythalamousasr, piecol = mono.polythalamouscols,cex=0.40)
 par(fg="black")
-legend("bottom", c("Monothalamous", "Polythalamous"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Chamber/Cells of Cynipini", cex = 1)
+legend("bottom", c("Monothalamous", "Polythalamous", "Poly+Mono"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Chamber/Cells of Cynipini", cex = 1)
 
 dev.off()
 ```
@@ -275,15 +294,15 @@ svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqc
 gall_sizepp <- matrix(0, length(gall_size), 5, dimnames = list(names(gall_size), c("1", "2", "3", "1+2", "2+3")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 gall_sizeX <- strsplit(setNames(as.character(gall_size_rate.mat), names(gall_size_rate.mat)),"+", fixed=TRUE)
-pies <- matrix(0, Ntip(S),3,
+pies <- matrix(0, Ntip(S),5,
 	dimnames=list(S$tip.label,
-	c("1", "2", "3")))
+	c("1", "2", "3", "1+2", "2+3")))
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		gall_sizeX[[S$tip.label[i]]]]<-
 		rep(1/length(gall_sizeX[[S$tip.label[i]]]),
 		length(gall_sizeX[[S$tip.label[i]]]))
-gall_sizecols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
+gall_sizecols <- setNames(c("firebrick1", "dodgerblue1", "grey15", "orange", "grey45"),
 	c("1", "2", "3"))
 par(fg="white")
 gall_size <- setNames(data$gall_size, data$Synergus)
@@ -303,7 +322,7 @@ names(piecol)<-colnames(gall_sizeasr)
 par(fg="white")
 nodelabels(pie = gall_sizeasr, piecol = gall_sizecols,cex=0.40)
 par(fg="black")
-legend("bottom", c("1", "2", "3"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Gall Size", cex = 1)
+legend("bottom", c("1", "2", "3", "1+2", "2+3"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15", "orange", "grey45"), pt.cex = 2, title = "Gall Size", cex = 1)
 
 dev.off()
 ```
@@ -333,7 +352,7 @@ clusterasr <- cluster_fit.marginal$states
 colnames(clusterasr) <- colnames(cluster_rate.mat)
 colnames(clusterasr) <- gsub("/","+", colnames(clusterasr))
 
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cluster_guerbrown.svg", width = 20, height = 10)
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cluster_guerbrown.svg", width = 20, height = 10)
 
 clusterpp <- matrix(0, length(cluster), 3, dimnames = list(names(cluster), c("0", "1", "0+1")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
@@ -346,7 +365,7 @@ for(i in 1:Ntip(S))
 		clusterX[[S$tip.label[i]]]]<-
 		rep(1/length(clusterX[[S$tip.label[i]]]),
 		length(clusterX[[S$tip.label[i]]]))
-clustercols <- setNames(c("firebrick1", "dodgerblue1"),
+clustercols <- setNames(c("firebrick1", "grey15", "dodgerblue1"),
 	c("0", "1"))
 par(fg="white")
 cluster <- setNames(data$cluster, data$Synergus)
@@ -366,10 +385,12 @@ names(piecol)<-colnames(clusterasr)
 par(fg="white")
 nodelabels(pie = clusterasr, piecol = clustercols,cex=0.40)
 par(fg="black")
-legend("bottom", c("Single Gall", "Cluster Gall"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Gall Clustering", cex = 1)
+legend("bottom", c("Single Gall", "Cluster Gall", "Both"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Gall Clustering", cex = 1)
 
-dev.off()
+clusterasr
+#dev.off()
 ```
+
 
 ### Detachable
 
@@ -398,20 +419,20 @@ detachableasr <- detachable_fit.marginal$states
 colnames(detachableasr) <- colnames(detachable_rate.mat)
 colnames(detachableasr) <- gsub("/","+", colnames(detachableasr))
 
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_detachable_guerbrown.svg", width = 20, height = 10)
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_detachable_guerbrown.svg", width = 20, height = 10)
 
 detachablepp <- matrix(0, length(detachable), 3, dimnames = list(names(detachable), c("1", "0", "1+0")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 detachableX <- strsplit(setNames(as.character(detachable_rate.mat), names(detachable_rate.mat)),"+", fixed=TRUE)
-pies <- matrix(0, Ntip(S),2,
+pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
-	c("1", "0")))
+	c("1", "0", "1+0")))
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		detachableX[[S$tip.label[i]]]]<-
 		rep(1/length(detachableX[[S$tip.label[i]]]),
 		length(detachableX[[S$tip.label[i]]]))
-detachablecols <- setNames(c("firebrick1", "dodgerblue1"),
+detachablecols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 	c("0", "1"))
 par(fg="white")
 detachable <- setNames(data$detachable, data$Synergus)
@@ -431,9 +452,9 @@ names(piecol)<-colnames(detachableasr)
 par(fg="white")
 nodelabels(pie = detachableasr, piecol = detachablecols,cex=0.40)
 par(fg="black")
-legend("bottom", c("Detachable", "Integrated"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Detachable", cex = 1)
+legend("bottom", c("Detachable", "Integrated", "No Preference"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Detachable", cex = 1)
 
-dev.off
+#dev.off()
 ```
 
 ### Spines

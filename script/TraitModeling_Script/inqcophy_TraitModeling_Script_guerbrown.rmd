@@ -106,8 +106,8 @@ for(i in 1:Ntip(S))
 		rep(1/length(oak_sectionX[[S$tip.label[i]]]),
 		length(oak_sectionX[[S$tip.label[i]]]))
 # Provide a set of color variables that we can use later
-oak_sectioncols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
-	c("Quercus", "Lobatae","Virentes"))
+oak_sectioncols <- setNames(c("firebrick1", "dodgerblue1", "grey15", "yellow"),
+	c("Lobatae","Quercus", "Virentes", "Quercus+Virentes"))
 par(fg="white")
 # Create a matrix of the trait and provide the names for its dimensions. 
 oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
@@ -134,7 +134,7 @@ par(fg="white")
 nodelabels(pie = oak_sectionasr, piecol = oak_sectioncols,cex=0.40)
 par(fg="black")
 # And lastly, provide a legend
-legend("bottom", c(colnames(oak_sectionasr)), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15", "yellow", "green", "orange", "black"), pt.cex = 2, title = "Oak Section", cex = 1)
+legend("bottom", c("Lobatae", "Quercus", "Virentes"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Oak Section", cex = 1)
 
 # Now that we have plotted the object, we need to tell the code to stop saving graphics as an svg. 
 dev.off()

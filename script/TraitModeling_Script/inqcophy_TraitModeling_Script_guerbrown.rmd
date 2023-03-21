@@ -53,7 +53,7 @@ data <- read.csv(traits, row.names = 1)
 
 ##### Note: These models are not all hand-typed. Instead, we developed templates that can be found in the README.md file of the /script folder. Please see that documentation if you are attempting to copy any of this process and do not wish to hand-copy parts of this script.
 
-```{r oak_section POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
+```{r oak_section POLYMORPHIC, fig.height=10, fig.width=12.5, fig.align='center'}
 # First, lets isolate the variable we want to graphically model from the original imported data frame
 oak_section <- setNames(data$oak_section, rownames(data))
 # Rename the levels of the variable 
@@ -89,8 +89,7 @@ colnames(oak_sectionasr) <- colnames(oak_section_rate.mat)
 colnames(oak_sectionasr) <- gsub("/","+", colnames(oak_sectionasr))
 
 # Prepare a graphical output for the phylogeny we are about to create
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
-
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
 
 # Plot the tree in a phylo space with the layout of your choosing
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
@@ -112,6 +111,8 @@ oak_sectioncols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 par(fg="white")
 # Create a matrix of the trait and provide the names for its dimensions. 
 oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
+# Split combinational characters using split = "+". This allows each individual trait to be recognized independently and lets it combine with both combinational and noncombinational factors. Failure to include this results in inconsistencies in data frame size between the ...pp file and the ...xx file.
+oak_sectionxx <- strsplit(as.character(oak_section), split = "+", fixed = T)
 # Add data to this matrix. This line of code is a BEAST to understand. In short, it is adding values of the pp matrix from the xx data frame then dividing it so that we have proportional values based on a scale of 100. I say it is so complex because the spacing of the code is dense and there are a lot of specifiers one may not normally encounter. It is actually quite brilliant but I owe this to L. Revell, whose blog I adapted it from.
 for (i in 1:nrow(oak_sectionpp)) oak_sectionpp[i,oak_sectionxx[[i]]]<-1/length(oak_sectionxx[[i]])
 # Use the pp matrix to add pie charts to the terminal nodes of the phylogeny
@@ -133,73 +134,10 @@ par(fg="white")
 nodelabels(pie = oak_sectionasr, piecol = oak_sectioncols,cex=0.40)
 par(fg="black")
 # And lastly, provide a legend
-legend("bottom", c("Lobatae", "Quercus","Virentes"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Oak Section", cex = 1)
+legend("bottom", c(colnames(oak_sectionasr)), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15", "yellow", "green", "orange", "black"), pt.cex = 2, title = "Oak Section", cex = 1)
 
 # Now that we have plotted the object, we need to tell the code to stop saving graphics as an svg. 
-#dev.off()
-```
-
-
-```{r oak_section POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
-oak_section <- setNames(data$oak_section, rownames(data))
-levels(oak_section) <- unique(data$oak_section)
-oak_section.ER <- fitpolyMk(S, oak_section, model = "ER")
-oak_sectionxx <- apply(oak_section.ER$data,1,
-            function(x,ss) ss[which(x==1)],
-            ss=colnames(oak_section.ER$data))
-oak_sectionxx <- gsub("+","/", oak_sectionxx, fixed=TRUE)
-oak_section.data <- data.frame(Genus_sp = names(oak_sectionxx), oak_section = oak_sectionxx)
-oak_section_rate.mat <- oak_section.ER$index.matrix
-oak_section_rate.mat[oak_section_rate.mat==0] <- NA
-colnames(oak_section_rate.mat) <- rownames(oak_section_rate.mat) <- gsub("+","/", colnames(oak_section_rate.mat), fixed=TRUE)
-oak_sectionind <- order(colnames(oak_section_rate.mat))
-oak_section_rate.mat <- oak_section_rate.mat[oak_sectionind, oak_sectionind]
-oak_section_fit.marginal <- corHMM(S, oak_section.data,
-                     rate.mat = oak_section_rate.mat,
-                     node.states = "marginal",
-                     rate.cat = 1, p = oak_section.ER$rates,
-                     root.p = oak_section.ER$pi)
-oak_sectionasr <- oak_section_fit.marginal$states
-colnames(oak_sectionasr) <- colnames(oak_section_rate.mat)
-colnames(oak_sectionasr) <- gsub("/","+", colnames(oak_sectionasr))
-
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
-
-oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
-plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
-oak_sectionX <- strsplit(setNames(as.character(oak_section_rate.mat), names(oak_section_rate.mat)),"+", fixed=TRUE)
-pies <- matrix(0, Ntip(S),3,
-	dimnames=list(S$tip.label,
-	c("Lobatae", "Quercus","Virentes")))
-for(i in 1:Ntip(S)) 
-	pies[S$tip.label[i],
-		oak_sectionX[[S$tip.label[i]]]]<-
-		rep(1/length(oak_sectionX[[S$tip.label[i]]]),
-		length(oak_sectionX[[S$tip.label[i]]]))
-oak_sectioncols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
-	c("0", "1"))
-par(fg="white")
-oak_section <- setNames(data$oak_section, data$Synergus)
-oak_sectionxx <- strsplit(as.character(oak_section), split = "+", fixed = T)
-oak_sectionpp <- matrix(0, length(oak_section), 4, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
-for (i in 1:nrow(oak_sectionpp)) oak_sectionpp[i,oak_sectionxx[[i]]]<-1/length(oak_sectionxx[[i]])
-tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex=0.3)
-par(fg="white")
-piecol <- oak_sectioncols
-for(i in 1:ncol(oak_sectionasr)){
-	oak_sectionnn <- strsplit(colnames(oak_sectionasr)[i],"+", fixed=TRUE)[[1]]
-	if(length(oak_sectionnn)==1) piecol[i] <- oak_sectioncols[oak_sectionnn]
-	else if(length(oak_sectionnn)==2) piecol[i] <- colorRampPalette(oak_sectioncols[oak_sectionnn])(3)[2]
-	else piecol[i]<-"black"
-}
-names(piecol)<-colnames(oak_sectionasr)
-par(fg="white")
-nodelabels(pie = oak_sectionasr, piecol = oak_sectioncols,cex=0.40)
-par(fg="black")
-legend("bottom", c("Lobatae", "Quercus","Virentes", "test1", "test2", "test3"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15", "pink", "orange", "yellow"), pt.cex = 2, title = "oak_section", cex = 1)
-
-#dev.off()
-oak_section.ER
+dev.off()
 ```
 
 ### Cynip Generation
@@ -546,7 +484,7 @@ spinesasr <- spines_fit.marginal$states
 colnames(spinesasr) <- colnames(spines_rate.mat)
 colnames(spinesasr) <- gsub("/","+", colnames(spinesasr))
 
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_spines_guerbrown.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_spines_guerbrown.svg", width = 20, height = 10)
 
 spinespp <- matrix(0, length(spines), 3, dimnames = list(names(spines), c("0", "1", "1+0")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
@@ -581,41 +519,7 @@ nodelabels(pie = spinesasr, piecol = spinescols,cex=0.40)
 par(fg="black")
 legend("bottom", c("No Spines", "Spines"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, cex = 1)
 
-smap.trees<-make.simmap(S, spines.ER$data,
-	Q=as.Qmatrix(spines.ER),pi=spines.ER$pi,
-	nsim=100)
-smap.spinestrees <- make.simmap(S, spines.ER$data,
-                                Q = as.Qmatrix(spines.ER), pi = spines.ER$pi,
-                                nsim = 100)
-par(mfrow = c(10,10))
-plot(smap.spinestrees, type = "fan", lwd = 2)
-tree <- summary(smap.spinestrees)
-par(fg="transparent")
-tree <- map.to.singleton(smap.spinestrees)
-plot(summary(smap.spinestrees),colors=piecol,type="fan",ftype="off",
-	lwd=1,cex=c(0.5,0.3))
-plot.phylo(tree, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
-par(fg="black")
-legend(x="topleft",legend=colnames(spinesasr),
-	pt.cex=1.8,pch=16,cex=0.8,col=piecol,
-	bty="n")
-plot(tree)
-tree
-
-plot(summary(smap.spinestrees), colors = spinescols, type = "fan")
-plot.phylo(summary(smap.spinestrees))
-ape::plot.phylo(smap.spinestrees)
-tree <- as.phylo(summary(smap.spinestrees))
-tree <- summary(smap.spinestrees)
-
-
-ape::plot
-plotSimmap(tree, ftype = "i", type = "fan", fsize = 0.7, offset = 5, part = 0.5, outline = T, lwd = 3.5, align.tip.lable = T)
-class(S)
-describe.simmap(smap.spinestrees)
-
-read.simmap(smap.spinestrees, format = "nexus")
-#dev.off()
+dev.off()
 ```
 
 ### Texture
@@ -649,15 +553,15 @@ svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqc
 texturepp <- matrix(0, length(texture), 3, dimnames = list(names(texture), c("0", "1", "1+0")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 textureX <- strsplit(setNames(as.character(texture_rate.mat), names(texture_rate.mat)),"+", fixed=TRUE)
-pies <- matrix(0, Ntip(S),2,
+pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
-	c("0", "1")))
+	c("0", "1", "1+0")))
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		textureX[[S$tip.label[i]]]]<-
 		rep(1/length(textureX[[S$tip.label[i]]]),
 		length(textureX[[S$tip.label[i]]]))
-texturecols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
+texturecols <- setNames(c("firebrick1", "dodgerblue1"),
 	c("0", "1"))
 par(fg="white")
 texture <- setNames(data$texture, data$Synergus)
@@ -677,7 +581,7 @@ names(piecol)<-colnames(textureasr)
 par(fg="white")
 nodelabels(pie = textureasr, piecol = texturecols,cex=0.40)
 par(fg="black")
-legend("bottom", c("0", "1"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Texture", cex = 1)
+legend("bottom", c("No Texture", "Textured"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Texture", cex = 1)
 
 dev.off()
 ```
@@ -740,7 +644,7 @@ names(piecol)<-colnames(hairsasr)
 par(fg="white")
 nodelabels(pie = hairsasr, piecol = hairscols,cex=0.40)
 par(fg="black")
-legend("bottom", c("Hairless", "Hairy"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, cex = 1)
+legend("bottom", c("Hairless", "Hairy"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, cex = 1)
 
 dev.off()
 ```
@@ -798,7 +702,7 @@ nectarasr <- nectar_fit.marginal$states
 colnames(nectarasr) <- colnames(nectar_rate.mat)
 colnames(nectarasr) <- gsub("/","+", colnames(nectarasr))
 
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_nectar_guerbrown.svg", width = 20, height = 10)
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_nectar_guerbrown.svg", width = 20, height = 10)
 
 nectarpp <- matrix(0, length(nectar), 3, dimnames = list(names(nectar), c("0", "1", "1+0")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
@@ -833,7 +737,7 @@ nodelabels(pie = nectarasr, piecol = nectarcols,cex=0.40)
 par(fg="black")
 legend("bottom", c("Nectarless", "Produces Nectar"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, cex = 1)
 
-#dev.off()
+dev.off()
 ```
 
 ### fiber
@@ -894,7 +798,7 @@ names(piecol)<-colnames(fiberasr)
 par(fg="white")
 nodelabels(pie = fiberasr, piecol = fibercols,cex=0.40)
 par(fg="black")
-legend("bottom", c("0", "1"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "fiber", cex = 1)
+legend("bottom", c("Not Fibrous", "Fribrous"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "fiber", cex = 1)
 
 dev.off()
 ```
@@ -957,7 +861,7 @@ names(piecol)<-colnames(bractasr)
 par(fg="white")
 nodelabels(pie = bractasr, piecol = bractcols,cex=0.40)
 par(fg="black")
-legend("bottom", c("0", "1"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Bract", cex = 1)
+legend("bottom", c("No Bract", "Bract"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Bract", cex = 1)
 
 dev.off()
 ```
@@ -1083,7 +987,7 @@ names(piecol)<-colnames(fleshyasr)
 par(fg="white")
 nodelabels(pie = fleshyasr, piecol = fleshycols,cex=0.40)
 par(fg="black")
-legend("bottom", c("0", "1", "1+0"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "fleshy", cex = 1)
+legend("bottom", c("Not Fleshy", "Fleshy", "Both"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, cex = 1)
 
 dev.off()
 ```
@@ -1147,6 +1051,7 @@ par(fg="white")
 nodelabels(pie = seasonasr, piecol = seasoncols,cex=0.40)
 par(fg="black")
 legend("bottom", c("Fall", "Summer", "Fall+Summer"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Season", cex = 1)
+
 dev.off()
 ```
 
@@ -1208,7 +1113,7 @@ names(piecol)<-colnames(locationasr)
 par(fg="white")
 nodelabels(pie = locationasr, piecol = locationcols,cex=0.40)
 par(fg="black")
-legend("bottom", c("leaf", "stem", "stem+leaf", "petiole+stem", "acorn", "bud", "bud+leaf+acorn"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "gold1", "grey15", "green", "white", "grey50"), pt.cex = 2, title = "location", cex = 1)
+legend("bottom", c(colnames(locationasr)), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "gold1", "grey15", "green", "white", "grey50"), pt.cex = 2, title = "location", cex = 1)
 locationpp
 #dev.off()
 ```

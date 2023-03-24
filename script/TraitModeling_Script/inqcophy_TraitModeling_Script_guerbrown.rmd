@@ -65,7 +65,7 @@ oak_section.ER$lik.anc[,1] <- oak_section.ER$lik.anc[,1] + 1/2*(oak_section.ER$l
 oak_section.ER$lik.anc[,2] <- oak_section.ER$lik.anc[,2] + 1/2*(oak_section.ER$lik.anc[,4])
 oak_section.ER$lik.anc <- data.frame(oak_section.ER$lik.anc[,1],oak_section.ER$lik.anc[,2], oak_section.ER$lik.anc[,3])
 # Set colors for the pie charts
-oak_sectioncols <- c("firebrick1", "dodgerblue1", "grey15")
+oak_sectioncols <- c("firebrick1", "grey50", "dodgerblue")
 
 # Now we have the data organized in a way that makes it accessible to the program and we can begin computing the graphical output of the figure. First, I want to save these automatically as vector graphics, so I'll use this function to initiate it.
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
@@ -82,14 +82,14 @@ oak_sectionpp <- matrix(0, length(oak_section_DATA), 4, dimnames = list(names(oa
 for (i in 1:nrow(oak_sectionpp)) oak_sectionpp[i,oak_sectionxx[[i]]]<-1/length(oak_sectionxx[[i]])
 par(fg = "transparent")
 # Adding tip labels using this proportional matrix using the previously listed colors
-ape::tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex = 0.15)
+ape::tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex = 0.25)
 par(fg = "white")
 # Addingthe node labels based on our likely ancestor from the model recapitulation. 
 nodelabels( node = 1:S$Nnode+Ntip(S),
     pie = oak_section.ER$lik.anc, piecol = oak_sectioncols, cex=0.4)
 par(fg = "black")
 # Providing a legend
-legend("bottom", c("Red Oaks (sect. Lobatae)", "White Oaks (sect. Quercus)", "Live Oaks (sect. Virentes)"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Oak Section", cex = 1)
+legend("bottom", c("Red Oaks (sect. Lobatae)", "White Oaks (sect. Quercus)", "Live Oaks (sect. Virentes)"), pch = 21, pt.bg = c(oak_sectioncols), pt.cex = 2, title = "Oak Section", cex = 1)
        
 # Telling the program we are done creating an image. This results in whatever is plotted being saved
 dev.off()

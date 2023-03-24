@@ -34,28 +34,26 @@ $ ./inqcophy_Traitmodeling_file.name
 
 ### NAME
 
-```{r NAME DISCRETE, fig.height=7, fig.width=12.5, fig.align='center'}
+```{r NAME DISCRETE, fig.height=10, fig.width=12.5, fig.align='center'}
+NAME <- setNames(data$NAME, rownames(data))
+levels(NAME) <- unique(data$NAME)
+NAME.ER <- ace(NAME, S, model = "ER", type = "discrete")
+NAMEcols <- c("firebrick1", "dodgerblue1", "grey15")
+
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_NAME_guerbrown.svg", width = 20, height = 10)
 
-NAME <- setNames(data$wool, rownames(data))
-levels(NAME) <- unique(data$wool)
-NAME.ER <- ace(wool, S, model = "ER", type = "discrete")
-
-NAMEcols <- c("firebrick1", "dodgerblue1")
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
-NAME_DATA <- setNames(data$wool, data$Synergus)
-NAMExx <- strsplit(as.character(wool_DATA), split = "+", fixed = T)
-NAMEpp <- matrix(0, length(wool_DATA), 2, dimnames = list(names(wool_DATA), c(INSERT LABELS)))
-for (i in 1:nrow(NAMEpp)) woolpp[i,woolxx[[i]]]<-1/length(woolxx[[i]])
+NAME_DATA <- setNames(data$NAME, data$Synergus)
+NAMExx <- strsplit(as.character(NAME_DATA), split = "+", fixed = T)
+NAMEpp <- matrix(0, length(NAME_DATA), 4, dimnames = list(names(NAME_DATA), c(LABELS)))
+for (i in 1:nrow(NAMEpp)) NAMEpp[i,NAMExx[[i]]]<-1/length(NAMExx[[i]])
 par(fg = "transparent")
-ape::tiplabels(pie = NAMEpp, piecol = woolcols, cex = 0.15)
+ape::tiplabels(pie = NAMEpp, piecol = NAMEcols, cex = 0.15)
 par(fg = "white")
-tiplabels(pie = to.matrix(NAME, sort(unique(wool))),piecol = woolcols, cex = 0.3)
 nodelabels( node = 1:S$Nnode+Ntip(S),
-    pie = NAME.ER$lik.anc, piecol = woolcols, cex=0.4)
-tiplabels(pie = to.matrix(NAME, sort(unique(wool))), piecol = woolcols, cex = 0.3)
+    pie = NAME.ER$lik.anc, piecol = NAMEcols, cex=0.4)
 par(fg = "black")
-legend("bottom", c(INSERT LABELS, pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = NAME, cex = 1)
+legend("bottom", c(LABELS), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "NAME", cex = 1)
 
 dev.off()
 ```
@@ -64,7 +62,7 @@ dev.off()
 
 ### NAME
 
-```{r NAME POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
+```{r NAME POLYMORPHIC, fig.height=10, fig.width=12.5, fig.align='center'}
 NAME <- setNames(data$NAME, rownames(data))
 levels(NAME) <- unique(data$NAME)
 NAME.ER <- fitpolyMk(S, NAME, model = "ER")
@@ -86,26 +84,22 @@ NAME_fit.marginal <- corHMM(S, NAME.data,
 NAMEasr <- NAME_fit.marginal$states
 colnames(NAMEasr) <- colnames(NAME_rate.mat)
 colnames(NAMEasr) <- gsub("/","+", colnames(NAMEasr))
-
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_NAME_guerbrown.svg", width = 20, height = 10)
-
-NAMEpp <- matrix(0, length(NAME), 3, dimnames = list(names(NAME), c(INSERT COMBO LABELS)))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
 NAMEX <- strsplit(setNames(as.character(NAME_rate.mat), names(NAME_rate.mat)),"+", fixed=TRUE)
-pies <- matrix(0, Ntip(S),2,
+pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
-	c(INERT LABELS)))
+	c(LABELS)))
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		NAMEX[[S$tip.label[i]]]]<-
 		rep(1/length(NAMEX[[S$tip.label[i]]]),
 		length(NAMEX[[S$tip.label[i]]]))
 NAMEcols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
-	c("0", "1"))
+	c(LABELS))
 par(fg="white")
-NAME <- setNames(data$NAME, data$Synergus)
 NAMExx <- strsplit(as.character(NAME), split = "+", fixed = T)
-NAMEpp <- matrix(0, length(NAME), 3, dimnames = list(names(NAME), c("INSERT COMBO LABELS")))
+NAMEpp <- matrix(0, length(NAME), 3, dimnames = list(names(NAME), c(LABELS)))
 for (i in 1:nrow(NAMEpp)) NAMEpp[i,NAMExx[[i]]]<-1/length(NAMExx[[i]])
 tiplabels(pie = NAMEpp, piecol = NAMEcols, cex=0.3)
 par(fg="white")
@@ -120,7 +114,6 @@ names(piecol)<-colnames(NAMEasr)
 par(fg="white")
 nodelabels(pie = NAMEasr, piecol = NAMEcols,cex=0.40)
 par(fg="black")
-legend("bottom", c(INSERT LABLES), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "NAME", cex = 1)
-
+legend("bottom", c(LABELS), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "NAME", cex = 1)
 dev.off()
 ```

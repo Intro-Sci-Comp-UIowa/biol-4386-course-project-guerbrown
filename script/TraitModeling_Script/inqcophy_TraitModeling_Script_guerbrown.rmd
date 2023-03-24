@@ -53,147 +53,119 @@ data <- read.csv(traits, row.names = 1)
 
 ##### Note: These models are not all hand-typed. Instead, we developed templates that can be found in the README.md file of the /script folder. Please see that documentation if you are attempting to copy any of this process and do not wish to hand-copy parts of this script.
 
-```{r oak_section POLYMORPHIC, fig.height=10, fig.width=12.5, fig.align='center'}
+```{r oak_section DISCRETE ANNOTATED, fig.height=10, fig.width=12.5, fig.align='center'}
 # First, lets isolate the variable we want to graphically model from the original imported data frame
 oak_section <- setNames(data$oak_section, rownames(data))
 # Rename the levels of the variable 
 levels(oak_section) <- unique(data$oak_section)
 # Recapitulation of the best fit model (see model selection script)
-oak_section.ER <- fitpolyMk(S, oak_section, model = "ER")
-# pull states off the fitted model object
-oak_sectionxx <- apply(oak_section.ER$data,1,
-            function(x,ss) ss[which(x==1)],
-            ss=colnames(oak_section.ER$data))
-# corHMM does not like to work with + so let's replace those with /
-oak_sectionxx <- gsub("+","/", oak_sectionxx, fixed=TRUE)
-# build corHMM data frame
-oak_section.data <- data.frame(Genus_sp = names(oak_sectionxx), oak_section = oak_sectionxx)
-# Pull out model design matrix from the fitted object
-oak_section_rate.mat <- oak_section.ER$index.matrix
-# Set any values of 0 in the design matrix to NA
-oak_section_rate.mat[oak_section_rate.mat==0] <- NA
-# Replace previous / with + in the new data design matrix
-colnames(oak_section_rate.mat) <- rownames(oak_section_rate.mat) <- gsub("+","/", colnames(oak_section_rate.mat), fixed=TRUE)
-# Order these from highest to lowest and name it something different that will allow us to transition the design matrix into something corHMM can utilize
-oak_sectionind <- order(colnames(oak_section_rate.mat))
-oak_section_rate.mat <- oak_section_rate.mat[oak_sectionind, oak_sectionind]
-# Ancestral States (this part of the analysis is compiling everything we've extracted that has importance)
-oak_section_fit.marginal <- corHMM(S, oak_section.data,
-                     rate.mat = oak_section_rate.mat,
-                     node.states = "marginal",
-                     rate.cat = 1, p = oak_section.ER$rates,
-                     root.p = oak_section.ER$pi)
-# Marginal states are stores in $states. Extract this and ensure the model is consistent
-oak_sectionasr <- oak_section_fit.marginal$states
-colnames(oak_sectionasr) <- colnames(oak_section_rate.mat)
-colnames(oak_sectionasr) <- gsub("/","+", colnames(oak_sectionasr))
+oak_section.ER <- ace(oak_section, S, model = "ER", type = "discrete")
+# The model currenlty includes an intermediate state, let's break this intermediate state into the two discrete traits.
+oak_section.ER$lik.anc[,1] <- oak_section.ER$lik.anc[,1] + 1/2*(oak_section.ER$lik.anc[,4])
+oak_section.ER$lik.anc[,2] <- oak_section.ER$lik.anc[,2] + 1/2*(oak_section.ER$lik.anc[,4])
+oak_section.ER$lik.anc <- data.frame(oak_section.ER$lik.anc[,1],oak_section.ER$lik.anc[,2], oak_section.ER$lik.anc[,3])
+# Set colors for the pie charts
+oak_sectioncols <- c("firebrick1", "dodgerblue1", "grey15")
 
-# Prepare a graphical output for the phylogeny we are about to create
+# Now we have the data organized in a way that makes it accessible to the program and we can begin computing the graphical output of the figure. First, I want to save these automatically as vector graphics, so I'll use this function to initiate it.
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_oak_section_guerbrown.svg", width = 20, height = 10)
 
 # Plot the tree in a phylo space with the layout of your choosing
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
-# Split the names of the trait so that the data frame recognizes traits with + as a combination of two or more traits
-oak_sectionX <- strsplit(setNames(as.character(oak_section_rate.mat), names(oak_section_rate.mat)),"+", fixed=TRUE)
-# Create pie charts of the traits you wish to graph on the tip labels. If you do not wish to represent a polymorphic trait as a discrete trait at tips, please run this **without** the code above.
-pies <- matrix(0, Ntip(S),3,
-	dimnames=list(S$tip.label,
-	c("1", "2", "3")))
-# Add data to the values for our pie charts
-for(i in 1:Ntip(S)) 
-	pies[S$tip.label[i],
-		oak_sectionX[[S$tip.label[i]]]]<-
-		rep(1/length(oak_sectionX[[S$tip.label[i]]]),
-		length(oak_sectionX[[S$tip.label[i]]]))
-# Provide a set of color variables that we can use later
-oak_sectioncols <- setNames(c("firebrick1", "grey75", "dodgerblue"),
-	c("Lobatae","Quercus", "Virentes"))
-par(fg="white")
-# Create a matrix of the trait and provide the names for its dimensions. 
-oak_sectionpp <- matrix(0, length(oak_section), 3, dimnames = list(names(oak_section), c("Lobatae","Quercus", "Virentes")))
-# Split combinational characters using split = "+". This allows each individual trait to be recognized independently and lets it combine with both combinational and noncombinational factors. Failure to include this results in inconsistencies in data frame size between the ...pp file and the ...xx file.
-oak_sectionxx <- strsplit(as.character(oak_section), split = "+", fixed = T)
-# Add data to this matrix. This line of code is a BEAST to understand. In short, it is adding values of the pp matrix from the xx data frame then dividing it so that we have proportional values based on a scale of 100. I say it is so complex because the spacing of the code is dense and there are a lot of specifiers one may not normally encounter. It is actually quite brilliant but I owe this to L. Revell, whose blog I adapted it from.
+# Create a simple data frame with the variables based on the taxa
+oak_section_DATA <- setNames(data$oak_section, data$Synergus)
+# Split the names of the variable names and list a new object
+oak_sectionxx <- strsplit(as.character(oak_section_DATA), split = "+", fixed = T)
+# Create a matrix with the variables from the _DATA file by providing lists of occurrence or absence of particular variables for each taxa
+oak_sectionpp <- matrix(0, length(oak_section_DATA), 4, dimnames = list(names(oak_section_DATA), c("Lobatae","Quercus", "Virentes", "Quercus+Virentes")))
+# Convert this matrix into a matrix of percentages by marking presence as 1 and divide it by the length of the data frame, effectively providign a value of the proportion
 for (i in 1:nrow(oak_sectionpp)) oak_sectionpp[i,oak_sectionxx[[i]]]<-1/length(oak_sectionxx[[i]])
-# Use the pp matrix to add pie charts to the terminal nodes of the phylogeny
-tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex=0.3)
-# Give them a white background for simplicity and beauty
-par(fg="white")
-piecol <- oak_sectioncols
-# Now, we need to add the values for pie charts of internal nodes in the phylogeny. To do this, we will use our extracted states from the marginal states data frame. We will then create a second, newly split (/ instead of +) version of this data frame and where a particular value, or trait exists, we will provide that value with a length of 1. If it has another value, or trait, that is a combination of traits we will give it a length of 2 and then produce a color pallet from mixing the colors of the traits that it is a combination of. So, if a trait is made of two traits, a red and a blue trait, the mixture of the two is represented as purple.
-for(i in 1:ncol(oak_sectionasr)){
-	oak_sectionnn <- strsplit(colnames(oak_sectionasr)[i],"+", fixed=TRUE)[[1]]
-	if(length(oak_sectionnn)==1) piecol[i] <- oak_sectioncols[oak_sectionnn]
-	else if(length(oak_sectionnn)==2) piecol[i] <- colorRampPalette(oak_sectioncols[oak_sectionnn])(3)[2]
-	else piecol[i]<-"black"
-}
-# Now, provide the names of the pies using the column names of the modified ...asr data frame
-names(piecol) <- colnames(oak_sectionasr)
-par(fg="white")
-
-# Since our states are technically polymorphic, we need to examine our intentions. We have the data for a combination approach but it would be just as informational to examine a non-combination approach to a polymorphic trait reconstruction. So, that's what we'll do. To accomplish this, specify a column without combination traits and add a proportional extraction from other columns that include the original trait to the column. 
-oak_sectionasr[,1] <- oak_sectionasr[,1] + 1/2*(oak_sectionasr[,2]) + 1/3*(oak_sectionasr[,3]) + 1/2*(oak_sectionasr[,4])
-oak_sectionasr[,5] <- oak_sectionasr[,5] + 1/2*(oak_sectionasr[,2]) + 1/3*(oak_sectionasr[,3]) + 1/2*(oak_sectionasr[,6])
-oak_sectionasr[,7] <- oak_sectionasr[,7] + 1/3*(oak_sectionasr[,3]) + 1/2*(oak_sectionasr[,4]) + 1/2*(oak_sectionasr[,6])
-oak_sectionasr <- data.frame(oak_sectionasr[,1], oak_sectionasr[,5], oak_sectionasr[,7])
-
-# Finally! We can plot the pie charts of the nodes!
-nodelabels(pie = oak_sectionasr, piecol = oak_sectioncols,cex=0.40)
-par(fg="black")
-# And lastly, provide a legend
-legend("bottom", c("Red Oaks (sect. Lobatae)", "White Oaks (sect. Quercus)", "Live Oaks (sect. Virentes)"), pch = 21, pt.bg = c(oak_sectioncols), pt.cex = 2, title = "Oak Section", cex = 1)
-
-# Now that we have plotted the object, we need to tell the code to stop saving graphics as an svg. 
+par(fg = "transparent")
+# Adding tip labels using this proportional matrix using the previously listed colors
+ape::tiplabels(pie = oak_sectionpp, piecol = oak_sectioncols, cex = 0.15)
+par(fg = "white")
+# Addingthe node labels based on our likely ancestor from the model recapitulation. 
+nodelabels( node = 1:S$Nnode+Ntip(S),
+    pie = oak_section.ER$lik.anc, piecol = oak_sectioncols, cex=0.4)
+par(fg = "black")
+# Providing a legend
+legend("bottom", c("Red Oaks (sect. Lobatae)", "White Oaks (sect. Quercus)", "Live Oaks (sect. Virentes)"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Oak Section", cex = 1)
+       
+# Telling the program we are done creating an image. This results in whatever is plotted being saved
 dev.off()
 ```
 
 ### Cynip Generation
 
-```{r cynip_generation POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
+```{r cynip_generation POLYMORPHIC, fig.height=10, fig.width=12.5, fig.align='center'}
+# First, lets isolate the variable we want to graphically model from the original imported data frame
 cynip_generation <- setNames(data$cynip_generation, rownames(data))
+# Rename the levels of the variable 
 levels(cynip_generation) <- unique(data$cynip_generation)
+# Recapitulation of the best fit model (see model selection script)
 cynip_generation.ER <- fitpolyMk(S, cynip_generation, model = "ER")
+# pull states off the fitted model object
 cynip_generationxx <- apply(cynip_generation.ER$data,1,
             function(x,ss) ss[which(x==1)],
             ss=colnames(cynip_generation.ER$data))
+# corHMM does not like to work with + so let's replace those with /
 cynip_generationxx <- gsub("+","/", cynip_generationxx, fixed=TRUE)
+# build corHMM data frame
 cynip_generation.data <- data.frame(Genus_sp = names(cynip_generationxx), cynip_generation = cynip_generationxx)
+# Pull out model design matrix from the fitted object
 cynip_generation_rate.mat <- cynip_generation.ER$index.matrix
+# Set any values of 0 in the design matrix to NA
 cynip_generation_rate.mat[cynip_generation_rate.mat==0] <- NA
+# Replace previous / with + in the new data design matrix
 colnames(cynip_generation_rate.mat) <- rownames(cynip_generation_rate.mat) <- gsub("+","/", colnames(cynip_generation_rate.mat), fixed=TRUE)
+# Order these from highest to lowest and name it something different that will allow us to transition the design matrix into something corHMM can utilize
 cynip_generationind <- order(colnames(cynip_generation_rate.mat))
 cynip_generation_rate.mat <- cynip_generation_rate.mat[cynip_generationind, cynip_generationind]
+# Ancestral States (this part of the analysis is compiling everything we've extracted that has importance)
 cynip_generation_fit.marginal <- corHMM(S, cynip_generation.data,
                      rate.mat = cynip_generation_rate.mat,
                      node.states = "marginal",
                      rate.cat = 1, p = cynip_generation.ER$rates,
                      root.p = cynip_generation.ER$pi)
+# Marginal states are stores in $states. Extract this and ensure the model is consistent
 cynip_generationasr <- cynip_generation_fit.marginal$states
+# Label the columns 
 colnames(cynip_generationasr) <- colnames(cynip_generation_rate.mat)
+# And now we can convert the / replaced earlier with the original +
 colnames(cynip_generationasr) <- gsub("/","+", colnames(cynip_generationasr))
 
+# Now we have the data organized in a way that makes it accessible to the program and we can begin computing the graphical output of the figure. First, I want to save these automatically as vector graphics, so I'll use this function to initiate it.
 svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_cynip_generation_guerbrown.svg", width = 20, height = 10)
 
-cynip_generationpp <- matrix(0, length(cynip_generation), 3, dimnames = list(names(cynip_generation), c("Asexual", "Sexual", "Asexual+Sexual")))
+# Plot the tree in a phylo space with the layout of your choosing
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
+# Split the names of the trait so that the data frame recognizes traits with + as a combination of two or more traits
 cynip_generationX <- strsplit(setNames(as.character(cynip_generation_rate.mat), names(cynip_generation_rate.mat)),"+", fixed=TRUE)
+# Create pie charts of the traits you wish to graph on the tip labels. If you do not wish to represent a polymorphic trait as a discrete trait at tips, please run this **without** the code above.
 pies <- matrix(0, Ntip(S),3,
 	dimnames=list(S$tip.label,
 	c("Asexual","Sexual", "Asexual+Sexual")))
+# Add data to the values for our pie charts
 for(i in 1:Ntip(S)) 
 	pies[S$tip.label[i],
 		cynip_generationX[[S$tip.label[i]]]]<-
 		rep(1/length(cynip_generationX[[S$tip.label[i]]]),
 		length(cynip_generationX[[S$tip.label[i]]]))
+# Provide a set of color variables that we can use later. This can be done anywhere but I just created them here arbitrarily.
 cynip_generationcols <- setNames(c("firebrick1", "dodgerblue1", "grey15"),
 	c("Asexual","Sexual"))
 par(fg="white")
-cynip_generation <- setNames(data$cynip_generation, data$Synergus)
+# Split combinational characters using split = "+". This allows each individual trait to be recognized independently and lets it combine with both combinational and noncombinational factors. Failure to include this results in inconsistencies in data frame size between the ...pp file and the ...xx file.
 cynip_generationxx <- strsplit(as.character(cynip_generation), split = "+", fixed = T)
+# Create a matrix of the trait and provide the names for its dimensions. 
 cynip_generationpp <- matrix(0, length(cynip_generation), 3, dimnames = list(names(cynip_generation), c("Asexual", "Sexual", "Asexual+Sexual")))
+# Add data to this matrix. This line of code is a BEAST to understand. In short, it is adding values of the pp matrix from the xx data frame then dividing it so that we have proportional values based on a scale of 100. I say it is so complex because the spacing of the code is dense and there are a lot of specifiers one may not normally encounter. It is actually quite brilliant but I owe this to L. Revell, whose blog I adapted it from.
 for (i in 1:nrow(cynip_generationpp)) cynip_generationpp[i,cynip_generationxx[[i]]]<-1/length(cynip_generationxx[[i]])
+# Use the pp matrix to add pie charts to the terminal nodes of the phylogeny
 tiplabels(pie = cynip_generationpp, piecol = cynip_generationcols, cex=0.3)
+# Give them a white background for simplicity and beauty
 par(fg="white")
+# Now, we need to add the values for pie charts of internal nodes in the phylogeny. To do this, we will use our extracted states from the marginal states data frame. We will then create a second, newly split (/ instead of +) version of this data frame and where a particular value, or trait exists, we will provide that value with a length of 1. If it has another value, or trait, that is a combination of traits we will give it a length of 2 and then produce a color pallet from mixing the colors of the traits that it is a combination of. So, if a trait is made of two traits, a red and a blue trait, the mixture of the two is represented as purple.
 piecol <- cynip_generationcols
 for(i in 1:ncol(cynip_generationasr)){
 	cynip_generationnn <- strsplit(colnames(cynip_generationasr)[i],"+", fixed=TRUE)[[1]]
@@ -201,10 +173,13 @@ for(i in 1:ncol(cynip_generationasr)){
 	else if(length(cynip_generationnn)==2) piecol[i] <- colorRampPalette(cynip_generationcols[cynip_generationnn])(3)[2]
 	else piecol[i]<-"black"
 }
+# Now, provide the names of the pies using the column names of the modified ...asr data frame
 names(piecol)<-colnames(cynip_generationasr)
 par(fg="white")
+# Finally! We can plot the pie charts of the nodes!
 nodelabels(pie = cynip_generationasr, piecol = cynip_generationcols,cex=0.40)
 par(fg="black")
+# And lastly, provide a legend
 legend("bottom", c("Asexual", "Sexual", "Asexual+Sexual"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Gall Former Generation", cex = 1)
 
 dev.off()
@@ -400,10 +375,7 @@ clusterasr
 #dev.off()
 ```
 
-
 ### Detachable
-
-### detachable
 
 ```{r detachable POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 detachable <- setNames(data$detachable, rownames(data))
@@ -530,7 +502,6 @@ dev.off()
 ```
 
 ### Texture
-
 
 ```{r texture POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
 texture <- setNames(data$texture, rownames(data))

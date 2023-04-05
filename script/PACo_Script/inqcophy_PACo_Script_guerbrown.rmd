@@ -85,14 +85,14 @@ hp$Gallers <- gsub("_", " ", hp$Galler)
 hp$Synergus <- gsub("_", " ", hp$Synergus)
 
 #plotting the tangelgram
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_guerbrown.svg", width = 20, height = 10)
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_guerbrown.svg", width = 20, height = 10)
 cophyloplot <- cophyloplot(h, p, hp, show.tip.label = T,
 lwd = 4, col = make.transparent("black", 0.3), font = 4,
 length.line = 0, gap = -1, space = 135, rotate = F,  align.tip.label = T, 
 use.edge.length = F, root.edge = T)+
 text(5,19.7, "Cynipidae", cex = 1.2)+
 text(168, 20.20, "Synergus", cex = 1.2)
-dev.off()
+#dev.off()
 ```
 
 ## PACo

@@ -1,6 +1,8 @@
 # Evolution of a genus of gall wasp kleptoparasites
 ### Guerin E. Brown<sup>1</sup>, Andrew A. Forbes<sup>1</sup>, & Y. Miles Zhang<sup>2</sup>
+
 <sup>1</sup>The University of Iowa
+
 <sup>2</sup>The University of Edinburgh
 ***
 

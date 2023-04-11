@@ -85,14 +85,12 @@ hp$Gallers <- gsub("_", " ", hp$Galler)
 hp$Synergus <- gsub("_", " ", hp$Synergus)
 
 #plotting the tangelgram
-#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_guerbrown.svg", width = 20, height = 10)
 cophyloplot <- cophyloplot(h, p, hp, show.tip.label = T,
 lwd = 4, col = make.transparent("black", 0.3), font = 4,
 length.line = 0, gap = -1, space = 135, rotate = F,  align.tip.label = T, 
 use.edge.length = F, root.edge = T)+
 text(5,19.7, "Cynipidae", cex = 1.2)+
 text(168, 20.20, "Synergus", cex = 1.2)
-#dev.off()
 ```
 
 ## PACo
@@ -182,7 +180,6 @@ t.critical = qt(0.975, NLinks-1)
 phi.UCI <- phi.mean + t.critical * phi.UCI/sqrt(NLinks)
 phi.UCI
 
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_ResBarplot_guerbrown.svg", width = 20, height = 7.5)
 par(mar = c(7, 5, 3, 6))
 pat.bar <- barplot(sort(phi.mean), names.arg = "", space = 0.2, col="white", ylab= "Squared residuals", ylim=c(0, max(phi.UCI)),cex.lab=1)
 segments(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5)
@@ -191,7 +188,6 @@ abline(a=median(phi.mean), b=0, lty=2)
 text(pat.bar, par("usr")[3] - 0.001, srt = 330, adj = 0, labels = rownames(SQres.jackn), xpd = TRUE, font = 3, cex=0.65, las = 2)
 text(22.32, 0.05, '*', cex = 3)
 text(25.93, 0.053, '*', cex = 3)
-dev.off()
 ```
 
 ### Significance of squared residuals using parafit link
@@ -226,7 +222,42 @@ parafit <- parafit(host.D, para.D, hp_binary, test.links = T, correction = "ling
 print(parafit)
 ```
 
+### Finalizing the tanglegram with data from the ParafitGlobal test
 
+```{r fig.height=10, fig.width=20, fig.align='center', dev='svg'}
+# Now we see which associations are being valued as cospeciation. To make this look nice, let's highlight these associations on our tanglegram.
+
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_Tanglegram_guerbrown.svg", width = 20, height = 10)
+# Here is a recreation of the tanglegram
+cophyloplot <- cophyloplot(h, p, hp, show.tip.label = T,
+lwd = 4, col = make.transparent("black", 0.3), font = 4,
+length.line = 0, gap = -1, space = 135, rotate = F,  align.tip.label = T, 
+use.edge.length = F, root.edge = T)+
+text(5,19.7, "Cynipidae", cex = 1.2)+
+text(168, 20.20, "Synergus", cex = 1.2)
+# Now, let's plot a red line over the correct associations
+x <- c(51, 139)
+y <- c(9, 3)
+y2 <- c(9, 11)
+lines(x, y, col = "firebrick1", lwd = 4)
+lines(x, y2, col = "firebrick1", lwd = 4)
+dev.off()
+```
+
+### Finally, let's plot astericks over these associations on the barplot of residuals
+
+```{r fig.height=7.5, fig.width=20, fig.align='center', dev='svg'}
+svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_PACo_ResBarPlot_guerbrown.svg", width = 20, height = 7.5)
+par(mar = c(7, 5, 3, 6))
+pat.bar <- barplot(sort(phi.mean), names.arg = "", space = 0.2, col="white", ylab= "Squared residuals", ylim=c(0, max(phi.UCI)),cex.lab=1)
+segments(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5)
+arrows(pat.bar, sort(phi.mean), pat.bar, sort(phi.UCI), lwd = 1.5, angle = 90, code = 3, length = 0.05)
+abline(a=median(phi.mean), b=0, lty=2) 
+text(pat.bar, par("usr")[3] - 0.001, srt = 330, adj = 0, labels = rownames(SQres.jackn), xpd = TRUE, font = 3, cex=0.65, las = 2)
+text(22.32, 0.05, '*', cex = 3, col = "firebrick1")
+text(25.93, 0.053, '*', cex = 3, col = "firebrick1")
+dev.off()
+```
 
 
 

@@ -49,7 +49,7 @@ data <- read.csv(traits, row.names = 1)
 
 ## Modeling Graphics
 
-### Oak Section (Annotated Polymorphic)
+### Oak Section (Annotated Discrete)
 
 ##### Note: These models are not all hand-typed. Instead, we developed templates that can be found in the README.md file of the /script folder. Please see that documentation if you are attempting to copy any of this process and do not wish to hand-copy parts of this script.
 
@@ -210,7 +210,7 @@ mono.polythalamousasr <- mono.polythalamous_fit.marginal$states
 colnames(mono.polythalamousasr) <- colnames(mono.polythalamous_rate.mat)
 colnames(mono.polythalamousasr) <- gsub("/","+", colnames(mono.polythalamousasr))
 
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_mono.polythalamous_guerbrown.svg", width = 20, height = 10)
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_mono.polythalamous_guerbrown.svg", width = 20, height = 10)
 
 mono.polythalamouspp <- matrix(0, length(mono.polythalamous), 3, dimnames = list(names(mono.polythalamous), c("0", "1", "0+1")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
@@ -245,7 +245,7 @@ nodelabels(pie = mono.polythalamousasr, piecol = mono.polythalamouscols,cex=0.40
 par(fg="black")
 legend("bottom", c("Monothalamous", "Polythalamous", "Poly+Mono"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1", "grey15"), pt.cex = 2, title = "Chamber/Cells of Cynipini", cex = 1)
 
-dev.off()
+#dev.off()
 ```
 
 ### Gall Size (removed until completed)
@@ -526,7 +526,7 @@ textureasr <- texture_fit.marginal$states
 colnames(textureasr) <- colnames(texture_rate.mat)
 colnames(textureasr) <- gsub("/","+", colnames(textureasr))
 
-svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_texture_guerbrown.svg", width = 20, height = 10)
+#svg("/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/inqcophy_traitmodeling_texture_guerbrown.svg", width = 20, height = 10)
 
 texturepp <- matrix(0, length(texture), 3, dimnames = list(names(texture), c("0", "1", "1+0")))
 plot.phylo(S, type = "fan", cex = 1.1, align.tip.label = F, lwd = 2, label.offset = 0.05, use.edge.length = F, open.angle =  163, node.depth = 100)
@@ -561,7 +561,7 @@ nodelabels(pie = textureasr, piecol = texturecols,cex=0.40)
 par(fg="black")
 legend("bottom", c("No Texture", "Textured"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, title = "Texture", cex = 1)
 
-dev.off()
+#dev.off()
 ```
 
 ### Hairs

@@ -8,6 +8,14 @@ install.packages("phytools")
 install.packages("plotrix")
 install.packages("svglite")
 install.packages("knitr")
+<<<<<<< HEAD
+=======
+#If corHMM will not install run this:
+#sudo apt-get install libgmp-dev libmpfr-dev
+#install.packages("gmp")
+#install.packages("Rmpfr")
+#install.packages("corHMM")
+>>>>>>> 44842d11294899603cc60ca9207d336373839d6e
 install.packages("corHMM")
 
 # Note: corHMM struggles to install on ubuntu. First, amke sure cmake is installed. If you still have troubles after this run the following code:

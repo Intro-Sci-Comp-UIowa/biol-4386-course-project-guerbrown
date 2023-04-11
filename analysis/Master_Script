@@ -1,0 +1,10 @@
+#This script is meant to run all supporting script required to construct the final figure in this analysis. To run, please make sure you have executable access to all the listed script files, including this one, then execute it
+
+Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/PACo_Script/inqcophy_PACo_Dependencies_guerbrown.R
+Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/TraitModeling_Script/inqcophy_TraitModeling_Dependencies_guerbrown.R
+Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/PACo_Script/inqcophy_PACo_purlScript_guerbrown.R
+Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/TraitModeling_Script/inqcophy_TraitModeling_purlScript_guerbrown.R
+Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/PACo_Script/inqcophy_PACo_Script_guerbrown.R
+Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/TraitModeling_Script/inqcophy_TraitModeling_Script_guerbrown.R
+./home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/Image_Modification_Script/inqcophy_ImageModification_Dependencies
+python3 /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/Image_Modification_Script/inqcophy_ImageModification_Script.py

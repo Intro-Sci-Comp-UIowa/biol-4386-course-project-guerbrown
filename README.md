@@ -16,7 +16,7 @@ The second part of this analysis attempts to visualize how physical traits or ch
 
 We will complete this for traits such as gall size, presence of spines on the gall, texture of the gall, hairiness, whether it produces nectar, whether it is fibrous or not, location on the oak tree, seasonality, and the taxonomic section of the oak. Once the models have been decided, we will map these traits onto fan phylogenies and show those that most accurately describe evolution of *Synergus*. Others will be provided in a supplement in a git repository. 
 
-![example_figure.png](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/_resources/example_figure.png)
+![final_figure.png](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/_resources/final_figure.png)
 Figure 1. A) Tanglegram showing associations between *Synergus* and Cynipini. B) Bar plot of residuals for each association from the PACo analysis. The dotted horizontal line depicts the median squared residual. Error bars are shown with each association. Associations that were significant in ParaFit are marked with asterisks. C-F) Preliminary example of what the ancestral state reconstructions will look like. Each one presented now is the exact same image but in future versions, this will have multiple different traits instead of just one presented four times. Four phylogenies are only shown here to better visualize how the overall figure will be laid out. 
 
 *** 

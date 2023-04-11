@@ -248,9 +248,9 @@ legend("bottom", c("Monothalamous", "Polythalamous", "Poly+Mono"), pch = 21, pt.
 dev.off()
 ```
 
-### Gall Size
+### Gall Size (removed until completed)
 
-```{r gall_size POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center'}
+```{r gall_size POLYMORPHIC, eval=FALSE, fig.align='center', fig.height=7, fig.width=12.5, include=FALSE}
 gall_size <- setNames(data$gall_size, rownames(data))
 levels(gall_size) <- unique(data$gall_size)
 gall_size.ER <- fitpolyMk(S, gall_size, model = "ER")
@@ -1033,9 +1033,9 @@ legend("bottom", c("Fall", "Summer", "Fall+Summer"), pch = 21, pt.bg = c("firebr
 dev.off()
 ```
 
-### location
+### location (removed until completed)
 
-```{r location POLYMORPHIC, fig.height=7, fig.width=12.5, fig.align='center', warning = T}
+```{r location POLYMORPHIC, eval=FALSE, fig.align='center', fig.height=7, fig.width=12.5, warning=FALSE, include=FALSE}
 location <- setNames(data$location, rownames(data))
 levels(location) <- unique(data$location)
 location.ER <- fitpolyMk(S, location, model = "ER")

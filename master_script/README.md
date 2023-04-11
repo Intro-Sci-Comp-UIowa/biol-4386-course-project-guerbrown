@@ -1,0 +1,2 @@
+#### Description
+This folder is meant to hold the master script for all analysis. To use, please visit all folders within the ~/script folder and see all files with "Dependencies" listed in the name. Ensure all dependencies are downloaded before running the master script. If you wish to perform only part of this analysis, please see the coresponding folder within ~/script. Each sub folder (ex. Trait Modeling or PACo) should be an entire independent analysis, barring the image modification scripts which require the output of the two other analyses to run. 

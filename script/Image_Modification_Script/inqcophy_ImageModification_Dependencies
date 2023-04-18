@@ -3,3 +3,5 @@ sudo apt-get install python3-pip
 sudo apt-get install inkscape
 pip install svgwrite
 pip install Pillow
+sudo apt-get install xvfb
+pip install cairosvg

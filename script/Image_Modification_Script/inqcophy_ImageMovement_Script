@@ -1,3 +1,0 @@
-# Moving .svg images with no backgrounds to the final_images directory
-
-mv ~/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output/no_bg* ~/home/guerbrown/github_local/biol-4386-course-project-guerbrown/final_images

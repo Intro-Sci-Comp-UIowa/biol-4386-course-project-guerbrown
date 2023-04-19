@@ -8,3 +8,4 @@ Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/P
 Rscript /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/TraitModeling_Script/inqcophy_TraitModeling_Script_guerbrown.R
 ./home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/Image_Modification_Script/inqcophy_ImageModification_Dependencies
 python3 /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/Image_Modification_Script/inqcophy_ImageModification_Script.py
+python3 /home/guerbrown/github_local/biol-4386-course-project-guerbrown/script/Image_Modification_Script/inqcophy_ImageCombination_Script.py

@@ -1,54 +1,62 @@
-import os
-import math
-from PIL import Image
-import svgwrite
+from PIL import Image, ImageDraw, ImageFont
 
-# Specify the input directory and image names
-input_directory = os.path.expanduser('~/github_local/biol-4386-course-project-guerbrown/output')
-img1_name = 'no_bg_inqcophy_PACo_Tanglegram_guerbrown.png'
-img2_name = 'no_bg_inqcophy_PACo_ResBarplot_guerbrown.png'
-img3_name = 'no_bg_inqcophy_traitmodeling_oak_section_guerbrown.png'
-img4_name = 'no_bg_inqcophy_traitmodeling_hairs_guerbrown.png'
-img5_name = 'no_bg_inqcophy_traitmodeling_nectar_guerbrown.png'
+def scale_default_font(size):
+    font_path = '/usr/share/fonts/truetype/freefont/FreeMono.ttf'
+    try:
+        font = ImageFont.truetype(font_path, size)
+    except OSError:
+        font = ImageFont.load_default()
+    return font
 
-# Load the images and resize them
-images = []
-for img_name in [img1_name, img2_name]:
-    img_path = os.path.join(input_directory, img_name)
-    with Image.open(img_path) as img:
-        img = img.resize((math.ceil(img.width / 2), math.ceil(img.height / 2)))
-        images.append(img)
-for img_name in [img3_name, img4_name, img5_name]:
-    img_path = os.path.join(input_directory, img_name)
-    with Image.open(img_path) as img:
-        img = img.resize((math.ceil(img.width / 3), math.ceil(img.height / 3)))
-        images.append(img)
+def add_label(image, label):
+    draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype('arial.ttf', 70)  # You may need to change the font path if it's different on your system
+    except OSError:
+        font = scale_default_font(60)
+    draw.text((10, 10), label, font=font, fill=(0, 0, 0, 255))
 
-# Determine the final image size and create a new image
-widths, heights = zip(*(i.size for i in images))
-total_width = sum(widths)
-max_height = max(heights)
-new_image = Image.new('RGB', (total_width, max_height), (255, 255, 255))
+path = '/home/guerbrown/github_local/biol-4386-course-project-guerbrown/final_images/'
 
-# Combine the images into the new image
-x_offset = 0
-for img in images:
-    new_image.paste(img, (x_offset, 0))
-    x_offset += img.size[0]
+file1 = path + 'inqcophy_PACo_Tanglegram_guerbrown_no_bg_.png'
+file2 = path + 'inqcophy_PACo_ResBarplot_guerbrown_no_bg_.png'
+file3 = path + 'inqcophy_traitmodeling_hairs_guerbrown_no_bg_.png'
+file4 = path + 'inqcophy_traitmodeling_oak_section_guerbrown_no_bg_.png'
+file5 = path + 'inqcophy_traitmodeling_spines_guerbrown_no_bg_.png'
+output_file = path + 'combined_image.png'
 
-# Save the new image as PNG
-final_image_path = os.path.join(input_directory, 'inqcophy_Final_Image_guerbrown.png')
-new_image.save(final_image_path)
+# Open the PNG files
+img1 = Image.open(file1)
+img2 = Image.open(file2)
+img3 = Image.open(file3)
+img4 = Image.open(file4)
+img5 = Image.open(file5)
 
-# Save the new image as SVG
-svg_image_path = final_image_path.replace('.png', '.svg')
-svg_image = svgwrite.Drawing(filename=svg_image_path, size=(total_width, max_height))
-x_offset = 0
-y_offset = 0
-for img_name, img in zip([img1_name, img2_name, img3_name, img4_name, img5_name], images):
-    img_path = os.path.join(input_directory, img_name)
-    with open(img_path, 'rb') as f:
-        img_data = f.read()
-        svg_image.add(svg_image.image(href=img_path, insert=(x_offset, y_offset), size=img.size))
-    x_offset += img.size[0]
-svg_image.save()
+# Calculate the scaling factor
+scaling_factor = (img1.height + img2.height) / (img3.height + img4.height + img5.height)
+
+# Resize the right images
+img3_resized = img3.resize((int(img3.width * scaling_factor), int(img3.height * scaling_factor)), Image.LANCZOS)
+img4_resized = img4.resize((int(img4.width * scaling_factor), int(img4.height * scaling_factor)), Image.LANCZOS)
+img5_resized = img5.resize((int(img5.width * scaling_factor), int(img5.height * scaling_factor)), Image.LANCZOS)
+
+# Add labels to the images
+add_label(img1, "A)")
+add_label(img2, "B)")
+add_label(img3_resized, "C)")
+add_label(img4_resized, "D)")
+add_label(img5_resized, "E)")
+
+# Create a new image with the combined size
+combined_image = Image.new('RGBA', (img1.width + img3_resized.width, max(img1.height + img2.height, img3_resized.height + img4_resized.height + img5_resized.height)))
+
+# Paste the images at the correct positions
+combined_image.paste(img1, (0, 0))
+combined_image.paste(img2, (0, img1.height))
+combined_image.paste(img3_resized, (img1.width, 0))
+combined_image.paste(img4_resized, (img1.width, img3_resized.height))
+combined_image.paste(img5_resized, (img1.width, img3_resized.height + img4_resized.height))
+
+# Save the combined image
+combined_image.save(output_file)
+

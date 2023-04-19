@@ -51,7 +51,7 @@ The second part of this analysis attempts to visualize how physical traits or ch
 
 ## Results
 
-![example_figure.svg](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/_resources/example_figure.svg)
+![combined_image.pnd](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/final_images/combined_image.png)
 Figure 1. A) Tanglegram showing associations between *Synergus* and Cynipini. The red lines overlap regions that are marked as significant (*p* < 0.01) by a ParaFit analysis. B) Bar plot of residuals for each association from the PACo analysis. The dotted horizontal line depicts the median squared residual. Error bars are shown with each association. Associations that were significant in ParaFit are marked with asterisks. C-F) Ancestral state reconstructions of three different ecological traits of Cynipini mapped to the *Synergus* phylogeny.
 
 **PACo and Cophylogeny:**

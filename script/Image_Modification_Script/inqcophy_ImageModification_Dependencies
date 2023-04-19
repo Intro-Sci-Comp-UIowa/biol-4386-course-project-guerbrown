@@ -5,3 +5,4 @@ pip install svgwrite
 pip install Pillow
 sudo apt-get install xvfb
 pip install cairosvg
+pip install svgutils

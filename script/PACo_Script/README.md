@@ -1,0 +1,2 @@
+#### This is the script for performing the procrustes analysis of cophylogeny. It also contains a test for ParaFitGlobal to measure cospeciation. 
+#### Please note that the scripts in this folder import and work with trees in a different way that the Trait Modeling script. Here, I am importing and pruning in the code wheras the trait modeling is automated based on a .csv. Both approaches work fine but I used both just to demonstrate.

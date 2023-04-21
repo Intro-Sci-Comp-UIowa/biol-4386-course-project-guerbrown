@@ -64,7 +64,8 @@ dev.off()
 
 ```{r NAME POLYMORPHIC, fig.height=10, fig.width=12.5, fig.align='center'}
 NAME <- setNames(data$NAME, rownames(data))
-levels(NAME) <- unique(data$NAME)
+
+
 NAME.ER <- fitpolyMk(S, NAME, model = "ER")
 NAMExx <- apply(NAME.ER$data,1,
             function(x,ss) ss[which(x==1)],

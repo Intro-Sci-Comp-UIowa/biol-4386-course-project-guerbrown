@@ -89,7 +89,7 @@ nodelabels( node = 1:S$Nnode+Ntip(S),
     pie = oak_section.ER$lik.anc, piecol = oak_sectioncols, cex=0.4)
 par(fg = "black")
 # Providing a legend
-legend("bottom", c("Red Oaks (sect. Lobatae)", "White Oaks (sect. Quercus)", "Live Oaks (sect. Virentes)"), pch = 21, pt.bg = c(oak_sectioncols), pt.cex = 2, title = "Oak Section", cex = 1)
+legend("bottom", c("Red Oaks (sect. Lobatae)", "White Oaks (sect. Quercus)", "Live Oaks (sect. Virentes)"), pch = 21, pt.bg = c(oak_sectioncols), pt.cex = 3, title = "Oak Section", cex = 2)
        
 # Telling the program we are done creating an image. This results in whatever is plotted being saved
 dev.off()
@@ -496,7 +496,7 @@ names(piecol)<-colnames(spinesasr)
 par(fg="white")
 nodelabels(pie = spinesasr, piecol = spinescols,cex=0.40)
 par(fg="black")
-legend("bottom", c("No Spines", "Spines"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, cex = 1)
+legend("bottom", c("No Spines", "Spines"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 3, cex = 2)
 
 dev.off()
 ```
@@ -622,7 +622,7 @@ names(piecol)<-colnames(hairsasr)
 par(fg="white")
 nodelabels(pie = hairsasr, piecol = hairscols,cex=0.40)
 par(fg="black")
-legend("bottom", c("Hairless", "Hairy"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 2, cex = 1)
+legend("bottom", c("Hairless", "Hairy"), pch = 21, pt.bg = c("firebrick1", "dodgerblue1"), pt.cex = 3, cex = 2)
 
 dev.off()
 ```

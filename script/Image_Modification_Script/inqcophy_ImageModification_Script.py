@@ -1,28 +1,40 @@
 import os
-import cairosvg
-from xml.etree import ElementTree
+from lxml import etree
+from cairosvg import svg2png
+from PIL import Image
+from svgwrite import Drawing
+import svgutils
 
-# Specify the directory containing the SVG images
-input_dir = '/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output'
-output_dir = os.path.expanduser('~/github_local/biol-4386-course-project-guerbrown/final_images')
+def remove_white_background(svg_file):
+    tree = etree.parse(svg_file)
+    root = tree.getroot()
 
-# Make sure output directory exists
-os.makedirs(output_dir, exist_ok=True)
+    for element in root.iter('*'):
+        if 'style' in element.attrib:
+            if 'fill:#ffffff' in element.attrib['style']:
+                element.attrib['style'] = element.attrib['style'].replace('fill:#ffffff', 'fill-opacity:0')
+    return tree
 
-# Loop through each SVG file in the input directory
-for filename in os.listdir(input_dir):
-    if filename.endswith('.svg'):
+input_dir = "/home/guerbrown/github_local/biol-4386-course-project-guerbrown/output"
+output_dir = "/home/guerbrown/github_local/biol-4386-course-project-guerbrown/final_images"
 
-        # Define the input and output filenames
-        input_file = os.path.join(input_dir, filename)
-        output_file = os.path.join(output_dir, filename.replace('.svg', '_no_bg_.png'))
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
-        # Load the SVG file and remove the background
-        with open(input_file, 'r') as svg_file:
-            svg_data = svg_file.read()
-            tree = ElementTree.fromstring(svg_data)
-            tree.attrib['style'] = 'background-color:none'
+for file in os.listdir(input_dir):
+    if file.endswith(".svg"):
+        input_file_path = os.path.join(input_dir, file)
+        output_file_path = os.path.join(output_dir, file)
+        output_png_file_path = os.path.join(output_dir, os.path.splitext(file)[0] + "_no_bg.png")
 
-        # Save the modified SVG as a PNG
-        cairosvg.svg2png(bytestring=ElementTree.tostring(tree), write_to=output_file)
+        processed_tree = remove_white_background(input_file_path)
+
+        # Save the modified SVG
+        with open(output_file_path, "wb") as f:
+            f.write(etree.tostring(processed_tree, pretty_print=True, xml_declaration=True, encoding="UTF-8"))
+
+        # Convert the modified SVG to PNG
+        svg2png(bytestring=etree.tostring(processed_tree), write_to=output_png_file_path)
+
+print("Processing completed.")
 

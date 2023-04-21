@@ -18,11 +18,11 @@ def add_label(image, label):
 
 path = '/home/guerbrown/github_local/biol-4386-course-project-guerbrown/final_images/'
 
-file1 = path + 'inqcophy_PACo_Tanglegram_guerbrown_no_bg_.png'
-file2 = path + 'inqcophy_PACo_ResBarplot_guerbrown_no_bg_.png'
-file3 = path + 'inqcophy_traitmodeling_hairs_guerbrown_no_bg_.png'
-file4 = path + 'inqcophy_traitmodeling_oak_section_guerbrown_no_bg_.png'
-file5 = path + 'inqcophy_traitmodeling_spines_guerbrown_no_bg_.png'
+file1 = path + 'inqcophy_PACo_Tanglegram_guerbrown_no_bg.png'
+file2 = path + 'inqcophy_PACo_ResBarplot_guerbrown_no_bg.png'
+file3 = path + 'inqcophy_traitmodeling_hairs_guerbrown_no_bg.png'
+file4 = path + 'inqcophy_traitmodeling_oak_section_guerbrown_no_bg.png'
+file5 = path + 'inqcophy_traitmodeling_spines_guerbrown_no_bg.png'
 output_file = path + 'combined_image.png'
 
 # Open the PNG files

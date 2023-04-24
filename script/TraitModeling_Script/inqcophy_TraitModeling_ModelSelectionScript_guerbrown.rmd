@@ -1,0 +1,418 @@
+---
+title: "Synergus Trait Modeling Script"
+author: "G. Brown"
+date: "2023-02-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Purpose: Computationally simulate stochastic mapping of ancestral states in the Synergus phylogeny using previously established methods for deciding models.
+
+#### Initialization
+
+```{r message=TRUE, warning=FALSE}
+library(ape)
+library(phytools)
+library(geiger)
+library(expm)
+library(lmtest)
+```
+
+#### Path to data
+
+#### These can be adjusted based on where you are saving your files (if you are trying to recreate this analysis).
+
+```{r warning=FALSE, include=FALSE}
+setwd("//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling")
+tree <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_traitmodeling_SynTree_guerbrown.nex"
+traits <- "//wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/data/TraitModeling/inqcophy_traitmodeling_TraitData_guerbrown.csv"
+```
+
+### Data Import
+
+```{r include=FALSE}
+# Import
+tree <- readNexus(tree)
+# Rooting the phylogeny based on a version of the tree with an outgroup and plotting
+root.phylo(tree, 28, resolve.root = T)
+# Importing the .csv file with our traits
+data <- read.csv(traits, row.names = 1)
+```
+
+### Purpose: Computationally develop models for the following traits of Synergus:
+- oak section
+- cynip generation
+- cell type
+- cluster
+- gall size
+- detatchable
+- spines
+- texture
+- hair
+- wool
+- nectar
+- rolling
+- fiber
+- bract
+- woody 
+- fleshy
+- location
+- season
+
+### Why: To develop a model under which we can estimate ancestral traits for each of these characteristics. Moreover, it will provide us with a means of understanding the constraints of Synergus evolution.
+
+### Misc.: Data run on the University of Iowa Interactive Data Analytics Service with 32 cpu cores and 128gb of RAM. 
+
+### Modeling Procedures
+
+**Oak Section**
+
+```{r}
+#move the data from one column into a simple matrix with the row names
+oaksection <- setNames(data$oak_section, rownames(data))
+#here is the previous step visualized
+oaksection
+#set up your models, take time to check before running. To hide the fitted model, use quiet = T. Here I have left one fit visible but will hide the remaining fits.
+oaksection.ER <- fitpolyMk(tree, oaksection, model = "ER")
+oaksection.SYM <- fitpolyMk(tree, oaksection, model = "SYM", quiet = T)
+oaksection.ARD <- fitpolyMk(tree, oaksection, model = "ARD", quiet = T)
+oaksection.transient <- fitpolyMk(tree, oaksection, model = "transient", quiet = T)
+#Create a table to compare the models
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(oaksection.ER), logLik(oaksection.SYM), 
+                      logLik(oaksection.ARD), logLik(oaksection.transient)),
+           k = c(attr(logLik(oaksection.ER), "df"),
+                 attr(logLik(oaksection.SYM), "df"),
+                 attr(logLik(oaksection.ARD), "df"),
+                 attr(logLik(oaksection.transient), "df")),
+           AIC = aic <- c(AIC(oaksection.ER), AIC(oaksection.SYM), 
+                          AIC(oaksection.ARD), AIC(oaksection.transient)),
+           weight = unclass(aic.w(aic)))
+#To help anyone else interpret this, the aic value represents the 
+plot(oaksection.ER)
+```
+
+**Cynip Generation**
+
+```{r}
+cynipgen <- setNames(data$cynip_generation, rownames(data))
+cynipgen.ER <- fitpolyMk(tree, cynipgen, model = "ER")
+cynipgen.SYM <- fitpolyMk(tree, cynipgen, model = "SYM", quiet = T)
+cynipgen.ARD <- fitpolyMk(tree, cynipgen, model = "ARD", quiet = T)
+cynipgen.transient <- fitpolyMk(tree, cynipgen, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(cynipgen.ER), logLik(cynipgen.SYM), 
+                      logLik(cynipgen.ARD), logLik(cynipgen.transient)),
+           k = c(attr(logLik(cynipgen.ER), "df"),
+                 attr(logLik(cynipgen.SYM), "df"),
+                 attr(logLik(cynipgen.ARD), "df"),
+                 attr(logLik(cynipgen.transient), "df")),
+           AIC = aic <- c(AIC(cynipgen.ER), AIC(cynipgen.SYM), 
+                          AIC(cynipgen.ARD), AIC(cynipgen.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**mono-polythalamous**
+
+```{r}
+monopoly <- setNames(data$mono.polythalamous, rownames(data))
+monopoly.ER <- fitpolyMk(tree, monopoly, model = "ER")
+monopoly.SYM <- fitpolyMk(tree, monopoly, model = "SYM", quiet = T)
+monopoly.ARD <- fitpolyMk(tree, monopoly, model = "ARD", quiet = T)
+monopoly.transient <- fitpolyMk(tree, monopoly, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(monopoly.ER), logLik(monopoly.SYM), 
+                      logLik(monopoly.ARD), logLik(monopoly.transient)),
+           k = c(attr(logLik(monopoly.ER), "df"),
+                 attr(logLik(monopoly.SYM), "df"),
+                 attr(logLik(monopoly.ARD), "df"),
+                 attr(logLik(monopoly.transient), "df")),
+           AIC = aic <- c(AIC(monopoly.ER), AIC(monopoly.SYM), 
+                          AIC(monopoly.ARD), AIC(monopoly.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+### Now that I have shown 3 examples of the procedure, I will specify each chunk to just show the results. This will cut down on some space in the knitted files.
+
+**gall Size**
+
+```{r echo=FALSE}
+gallsize <- setNames(data$gall_size, rownames(data))
+gallsize.ER <- fitpolyMk(tree, gallsize, model = "ER")
+gallsize.SYM <- fitpolyMk(tree, gallsize, model = "SYM", quiet = T)
+gallsize.ARD <- fitpolyMk(tree, gallsize, model = "ARD", quiet = T)
+gallsize.transient <- fitpolyMk(tree, gallsize, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(gallsize.ER), logLik(gallsize.SYM), 
+                      logLik(gallsize.ARD), logLik(gallsize.transient)),
+           k = c(attr(logLik(gallsize.ER), "df"),
+                 attr(logLik(gallsize.SYM), "df"),
+                 attr(logLik(gallsize.ARD), "df"),
+                 attr(logLik(gallsize.transient), "df")),
+           AIC = aic <- c(AIC(gallsize.ER), AIC(gallsize.SYM), 
+                          AIC(gallsize.ARD), AIC(gallsize.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**cluster**
+
+```{r echo=FALSE}
+cluster <- setNames(data$cluster, rownames(data))
+cluster.ER <- fitpolyMk(tree, cluster, model = "ER")
+cluster.SYM <- fitpolyMk(tree, cluster, model = "SYM", quiet = T)
+cluster.ARD <- fitpolyMk(tree, cluster, model = "ARD", quiet = T)
+cluster.transient <- fitpolyMk(tree, cluster, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(cluster.ER), logLik(cluster.SYM), 
+                      logLik(cluster.ARD), logLik(cluster.transient)),
+           k = c(attr(logLik(cluster.ER), "df"),
+                 attr(logLik(cluster.SYM), "df"),
+                 attr(logLik(cluster.ARD), "df"),
+                 attr(logLik(cluster.transient), "df")),
+           AIC = aic <- c(AIC(cluster.ER), AIC(cluster.SYM), 
+                          AIC(cluster.ARD), AIC(cluster.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**detachable**
+
+```{r echo=FALSE}
+detatchable <- setNames(data$detachable, rownames(data))
+detatchable.ER <- fitpolyMk(tree, detatchable, model = "ER")
+detatchable.SYM <- fitpolyMk(tree, detatchable, model = "SYM", quiet = T)
+detatchable.ARD <- fitpolyMk(tree, detatchable, model = "ARD", quiet = T)
+detatchable.transient <- fitpolyMk(tree, detatchable, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(detatchable.ER), logLik(detatchable.SYM), 
+                      logLik(detatchable.ARD), logLik(detatchable.transient)),
+           k = c(attr(logLik(detatchable.ER), "df"),
+                 attr(logLik(detatchable.SYM), "df"),
+                 attr(logLik(detatchable.ARD), "df"),
+                 attr(logLik(detatchable.transient), "df")),
+           AIC = aic <- c(AIC(detatchable.ER), AIC(detatchable.SYM), 
+                          AIC(detatchable.ARD), AIC(detatchable.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**spines**
+
+```{r echo=FALSE}
+spines <- setNames(data$spines, rownames(data))
+spines.ER <- fitpolyMk(tree, spines, model = "ER")
+spines.SYM <- fitpolyMk(tree, spines, model = "SYM", quiet = T)
+spines.ARD <- fitpolyMk(tree, spines, model = "ARD", quiet = T)
+spines.transient <- fitpolyMk(tree, spines, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(spines.ER), logLik(spines.SYM), 
+                      logLik(spines.ARD), logLik(spines.transient)),
+           k = c(attr(logLik(spines.ER), "df"),
+                 attr(logLik(spines.SYM), "df"),
+                 attr(logLik(spines.ARD), "df"),
+                 attr(logLik(spines.transient), "df")),
+           AIC = aic <- c(AIC(spines.ER), AIC(spines.SYM), 
+                          AIC(spines.ARD), AIC(spines.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**texture**
+
+```{r echo=FALSE}
+texture <- setNames(data$texture, rownames(data))
+texture.ER <- fitpolyMk(tree, texture, model = "ER")
+texture.SYM <- fitpolyMk(tree, texture, model = "SYM", quiet = T)
+texture.ARD <- fitpolyMk(tree, texture, model = "ARD", quiet = T)
+texture.transient <- fitpolyMk(tree, texture, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(texture.ER), logLik(texture.SYM), 
+                      logLik(texture.ARD), logLik(texture.transient)),
+           k = c(attr(logLik(texture.ER), "df"),
+                 attr(logLik(texture.SYM), "df"),
+                 attr(logLik(texture.ARD), "df"),
+                 attr(logLik(texture.transient), "df")),
+           AIC = aic <- c(AIC(texture.ER), AIC(texture.SYM), 
+                          AIC(texture.ARD), AIC(texture.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**hair**
+
+```{r echo=FALSE}
+hairs <- setNames(data$hairs, rownames(data))
+hairs.ER <- fitpolyMk(tree, hairs, model = "ER")
+hairs.SYM <- fitpolyMk(tree, hairs, model = "SYM", quiet = T)
+hairs.ARD <- fitpolyMk(tree, hairs, model = "ARD", quiet = T)
+hairs.transient <- fitpolyMk(tree, hairs, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(hairs.ER), logLik(hairs.SYM), 
+                      logLik(hairs.ARD), logLik(hairs.transient)),
+           k = c(attr(logLik(hairs.ER), "df"),
+                 attr(logLik(hairs.SYM), "df"),
+                 attr(logLik(hairs.ARD), "df"),
+                 attr(logLik(hairs.transient), "df")),
+           AIC = aic <- c(AIC(hairs.ER), AIC(hairs.SYM), 
+                          AIC(hairs.ARD), AIC(hairs.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**wool**
+
+```{r echo=FALSE}
+wool <- setNames(data$wool, rownames(data))
+wool.ER <- fitMk(tree, wool, model = "ER")
+wool.SYM <- fitMk(tree, wool, model = "SYM", quiet = T)
+wool.ARD <- fitMk(tree, wool, model = "ARD", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD"),
+           logLik = c(logLik(wool.ER), logLik(wool.SYM), 
+                      logLik(wool.ARD),
+           k = c(attr(logLik(wool.ER), "df"),
+                 attr(logLik(wool.SYM), "df"),
+                 attr(logLik(wool.ARD), "df")),
+           AIC = aic <- c(AIC(wool.ER), AIC(wool.SYM), 
+                          AIC(wool.ARD)),
+           weight = unclass(aic.w(aic))))
+```
+
+**nectar**
+
+```{r echo=FALSE}
+nectar <- setNames(data$nectar, rownames(data))
+nectar.ER <- fitpolyMk(tree, nectar, model = "ER")
+nectar.SYM <- fitpolyMk(tree, nectar, model = "SYM", quiet = T)
+nectar.ARD <- fitpolyMk(tree, nectar, model = "ARD", quiet = T)
+nectar.transient <- fitpolyMk(tree, nectar, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(nectar.ER), logLik(nectar.SYM), 
+                      logLik(nectar.ARD), logLik(nectar.transient)),
+           k = c(attr(logLik(nectar.ER), "df"),
+                 attr(logLik(nectar.SYM), "df"),
+                 attr(logLik(nectar.ARD), "df"),
+                 attr(logLik(nectar.transient), "df")),
+           AIC = aic <- c(AIC(nectar.ER), AIC(nectar.SYM), 
+                          AIC(nectar.ARD), AIC(nectar.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+##### Rolling is skipped because it has only one trait shown across all taxa being studied
+
+**fiber**
+
+```{r echo=FALSE}
+fiber <- setNames(data$fiber, rownames(data))
+fiber.ER <- fitpolyMk(tree, fiber, model = "ER")
+fiber.SYM <- fitpolyMk(tree, fiber, model = "SYM", quiet = T)
+fiber.ARD <- fitpolyMk(tree, fiber, model = "ARD", quiet = T)
+fiber.transient <- fitpolyMk(tree, fiber, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(fiber.ER), logLik(fiber.SYM), 
+                      logLik(fiber.ARD), logLik(fiber.transient)),
+           k = c(attr(logLik(fiber.ER), "df"),
+                 attr(logLik(fiber.SYM), "df"),
+                 attr(logLik(fiber.ARD), "df"),
+                 attr(logLik(fiber.transient), "df")),
+           AIC = aic <- c(AIC(fiber.ER), AIC(fiber.SYM), 
+                          AIC(fiber.ARD), AIC(fiber.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**bract**
+
+```{r echo=FALSE}
+bract <- setNames(data$bract, rownames(data))
+bract.ER <- fitpolyMk(tree, bract, model = "ER")
+bract.SYM <- fitpolyMk(tree, bract, model = "SYM", quiet = T)
+bract.ARD <- fitpolyMk(tree, bract, model = "ARD", quiet = T)
+bract.transient <- fitpolyMk(tree, bract, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(bract.ER), logLik(bract.SYM), 
+                      logLik(bract.ARD), logLik(bract.transient)),
+           k = c(attr(logLik(bract.ER), "df"),
+                 attr(logLik(bract.SYM), "df"),
+                 attr(logLik(bract.ARD), "df"),
+                 attr(logLik(bract.transient), "df")),
+           AIC = aic <- c(AIC(bract.ER), AIC(bract.SYM), 
+                          AIC(bract.ARD), AIC(bract.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**woody**
+
+```{r echo=FALSE}
+woody <- setNames(data$woody, rownames(data))
+woody.ER <- fitpolyMk(tree, woody, model = "ER")
+woody.SYM <- fitpolyMk(tree, woody, model = "SYM", quiet = T)
+woody.ARD <- fitpolyMk(tree, woody, model = "ARD", quiet = T)
+woody.transient <- fitpolyMk(tree, woody, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(woody.ER), logLik(woody.SYM), 
+                      logLik(woody.ARD), logLik(woody.transient)),
+           k = c(attr(logLik(woody.ER), "df"),
+                 attr(logLik(woody.SYM), "df"),
+                 attr(logLik(woody.ARD), "df"),
+                 attr(logLik(woody.transient), "df")),
+           AIC = aic <- c(AIC(woody.ER), AIC(woody.SYM), 
+                          AIC(woody.ARD), AIC(woody.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**fleshy**
+
+```{r echo=FALSE}
+fleshy <- setNames(data$fleshy, rownames(data))
+fleshy.ER <- fitpolyMk(tree, fleshy, model = "ER")
+fleshy.SYM <- fitpolyMk(tree, fleshy, model = "SYM", quiet = T)
+fleshy.ARD <- fitpolyMk(tree, fleshy, model = "ARD", quiet = T)
+fleshy.transient <- fitpolyMk(tree, fleshy, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(fleshy.ER), logLik(fleshy.SYM), 
+                      logLik(fleshy.ARD), logLik(fleshy.transient)),
+           k = c(attr(logLik(fleshy.ER), "df"),
+                 attr(logLik(fleshy.SYM), "df"),
+                 attr(logLik(fleshy.ARD), "df"),
+                 attr(logLik(fleshy.transient), "df")),
+           AIC = aic <- c(AIC(fleshy.ER), AIC(fleshy.SYM), 
+                          AIC(fleshy.ARD), AIC(fleshy.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**location**
+
+```{r echo=FALSE}
+location <- setNames(data$location, rownames(data))
+location.ER <- fitpolyMk(tree, location, model = "ER")
+location.SYM <- fitpolyMk(tree, location, model = "SYM", quiet = T)
+location.ARD <- fitpolyMk(tree, location, model = "ARD", quiet = T)
+location.transient <- fitpolyMk(tree, location, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(location.ER), logLik(location.SYM), 
+                      logLik(location.ARD), logLik(location.transient)),
+           k = c(attr(logLik(location.ER), "df"),
+                 attr(logLik(location.SYM), "df"),
+                 attr(logLik(location.ARD), "df"),
+                 attr(logLik(location.transient), "df")),
+           AIC = aic <- c(AIC(location.ER), AIC(location.SYM), 
+                          AIC(location.ARD), AIC(location.transient)),
+           weight = unclass(aic.w(aic)))
+```
+
+**season**
+
+```{r echo=FALSE}
+season <- setNames(data$season, rownames(data))
+season.ER <- fitpolyMk(tree, season, model = "ER")
+season.SYM <- fitpolyMk(tree, season, model = "SYM", quiet = T)
+season.ARD <- fitpolyMk(tree, season, model = "ARD", quiet = T)
+season.transient <- fitpolyMk(tree, season, model = "transient", quiet = T)
+data.frame(model = c("ER", "SYM", "ARD", "transient"),
+           logLik = c(logLik(season.ER), logLik(season.SYM), 
+                      logLik(season.ARD), logLik(season.transient)),
+           k = c(attr(logLik(season.ER), "df"),
+                 attr(logLik(season.SYM), "df"),
+                 attr(logLik(season.ARD), "df"),
+                 attr(logLik(season.transient), "df")),
+           AIC = aic <- c(AIC(season.ER), AIC(season.SYM), 
+                          AIC(season.ARD), AIC(season.transient)),
+           weight = unclass(aic.w(aic)))
+```

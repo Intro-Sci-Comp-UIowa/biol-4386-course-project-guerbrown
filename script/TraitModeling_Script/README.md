@@ -5,6 +5,7 @@
 - ...purlScript: This script automatically extracts chunks of code from the .rmd file
 - ... Script...R: This is the script file of extracted chunks after ...purlScript has been run
 - ...Script...rmd: This is the R Markdown file where all analysis was initially written. It contains both code and annotations. 
+- ...ModelSelectionScript: This is an R Markdown file where the models for the ancestral state reconstructions are calculated. This script is extremely computationally expensive to run. Please run on an HPC. There is no purl script for this file but the purl script for the actual reconstructions can be modified to fit this if you desire to run it. 
 
 ##### Instructions on running scripts individually
 - The following instructions are provided using commands for linux and ubuntu. If you are using a different language, please modify as needed.

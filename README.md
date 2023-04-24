@@ -103,7 +103,7 @@ This supplement is meant to provide higher resolution images from the main figur
 Figure S1. Tanglegram of the cophylogeny between Cynipini (gallformers) and *Synergus*. Red lines indicate significant relationships defined under coevolution statistical models from the ParaFit statistic. 
 
 ![inqcophy_PACo_ResBarPlot_guerbrown.svg](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/final_images/inqcophy_PACo_ResBarPlot_guerbrown.svg)
-Figure S2. Barplot of plotted residuals. This is the output of PACo. The red asterisks show relationships that are significant from ParaFit. The line through the middle of the plot is defined as the line of best fit. 
+Figure S2. Barplot of plotted residuals. This is the output of PACo. The red asterisks show relationships that are significant from ParaFit. The line through the middle of the plot is defined as the median squared residual. 
 
 ![inqcophy_traitmodeling_hairs_guerbrown.svg](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/final_images/inqcophy_traitmodeling_hairs_guerbrown.svg)
 Figure S3. Ancestral state reconstruction of *Synergus* kleptoparasites and traits of the Cynipini they parasitize. This phylogeny shows the trait of light hairiness.

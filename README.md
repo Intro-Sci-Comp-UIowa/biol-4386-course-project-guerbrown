@@ -54,7 +54,7 @@ Once all three of these matrices have been created, we cancomplete the PACo anal
 
 ## Results
 
-![combined_image.pnd](file://wsl.localhost/Ubuntu/home/guerbrown/github_local/biol-4386-course-project-guerbrown/final_images/combined_image.png)
+![combined_image.pnd](https://github.com/Intro-Sci-Comp-UIowa/biol-4386-course-project-guerbrown/blob/main/final_images/combined_image.png)
 Figure 1. A) Tanglegram showing associations between *Synergus* and Cynipini. The red lines overlap regions that are marked as significant (*p* < 0.01) by a ParaFit analysis. B) Bar plot of residuals for each association from the PACo analysis. The dotted horizontal line depicts the median squared residual. Error bars are shown with each association. Associations that were significant in ParaFit are marked with asterisks. C-F) Ancestral state reconstructions of three different ecological traits of Cynipini mapped to the *Synergus* phylogeny.
 
 Figure 1. A) Tanglegram showing associations between*Synergus* and Cynipini. The red lines overlap regions that are marked assignificant (*p* < 0.01) by a ParaFit analysis. B) Bar plot of residuals foreach association from the PACo analysis. The dotted horizontal line depicts themedian squared residual. Error bars are shown with each association.Associations that were significant in ParaFit are marked with asterisks. C-F)Ancestral state reconstructions of three different ecological traits of Cynipinimapped to the *Synergus* phylogeny.

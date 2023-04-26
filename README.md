@@ -1,9 +1,15 @@
-# Evolution of a genus of gall wasp kleptoparasites
+Evolution of a genus of gall wasp kleptoparasites
 ### Guerin E. Brown<sup>1</sup>, Andrew A. Forbes<sup>1</sup>, & Y. Miles Zhang<sup>2</sup>
 
 <sup>1</sup>The University of Iowa
 
 <sup>2</sup>The University of Edinburgh
+
+* * *
+
+## Abstract
+
+Kleptoparasites do not directly parasitize their hosts but instead steal food and resources, reducing host fitness. Like direct parasites, kleptoparasites can be highly dependent on their hosts such that their evolutionary histories may be linked. Here, we study the evolution of a kleptoparasitic wasp genus, *Synergus* (Hymenoptera: Cynipidae: Synergini), in relation to their hosts, oak gall wasps (Hymenoptera: Cynipidae: Cynipini). Ovipositing oak gall wasps induce the formation of galls on oaks (Fagaceae) that provide food and shelter to one or more developing gall wasps. Galls induced by different gall wasp species are diverse in size, shape, color, and location on the host tree, and tend to be specific to just one or a few oak tree species. *Synergus*, and other kleptoparasites, exploit galls by ovipositing into the developing gall and inducing the development of a secondary gall chamber. *Synergus* larva feed on the gall tissue, sometimes reducing food available to the oak gall wasp larva to the extent that the host dies. We ask how the ecology of gall wasps has affected the diversification of *Synergus*. We compare the topologies of *Synergus* and gall wasp phylogenetic trees and detect a significant signal of cophylogeny, or congruence of the evolutionary relationships, that appears limited to only a few interactions. We use traits of oak galls to describe the ecological niche for each *Synergus* species and reconstruct ecological traits of ancestral nodes and find that *Synergus* kleptoparasites are evolving both under cospeciation and host swapping scenarios.
 
 * * *
 
@@ -80,25 +86,25 @@ Finally, I just want to add that this was a wonderful course.I walk away feeling
 
 **Literature**
 
-* **Phylogenetic Comparative Methods in R**: Revell, L. J.(2022). "Phylogenetic comparative methods in R." *PrincetonUniversity Press*.
+* **Phylogenetic Comparative Methods in R**: Revell, L. J.(2022). "Phylogenetic comparative methods in R." *Princeton University Press*.
 
-* **PACo: A Novel Procrustes Application to CophylogeneticAnalysis**: Balbuena JA, Míguez-Lozano R, Blasco-Costa I (2013) "PACo: ANovel Procrustes Application to Cophylogenetic Analysis." *PLOS ONE* 8(4):e61048. https://doi.org/10.1371/journal.pone.0061048
+* **PACo: A Novel Procrustes Application to Cophylogenetic Analysis**: Balbuena JA, Míguez-Lozano R, Blasco-Costa I (2013) "PACo: ANovel Procrustes Application to Cophylogenetic Analysis." *PLOS ONE* 8(4): e61048. https://doi.org/10.1371/journal.pone.0061048
 
-* **paco: Implementing Procrustean Approach to Cophylogenyin R. Methods in Ecology and Evolution**: Hutchinson, M. C., Cagua, E. F.,Balbuena, J. A., Stouffer, D. B., & Poisot, T. (2017). paco: ImplementingProcrustean Approach to Cophylogeny in R. Methods in Ecology and Evolution,8(8), 932–940. https://doi.org/10.1111/2041-210X.12736
+* **paco: Implementing Procrustean Approach to Cophylogeny in R. Methods in Ecology and Evolution**: Hutchinson, M. C., Cagua, E. F.,Balbuena, J. A., Stouffer, D. B., & Poisot, T. (2017). paco: Implementing Procrustean Approach to Cophylogeny in R. Methods in Ecology and Evolution,8(8), 932–940. https://doi.org/10.1111/2041-210X.12736
 
-* **A statistical test for host-parasite coevolution**:Legendre, P., Desdevises, Y., & Bazin, E. (2002). A statistical test forhost-parasite coevolution. Systematic Biology, 51(2), 217–234.https://doi.org/10.1080/10635150252899734-**Cophylogeny of Figs, Pollinators,Gallers, and Parasitoids**: Silvieus, S., Clement, W., Weiblen, G. (2008)Cophylogeny of Figs, Pollinators, Gallers, and Parasitoids. Specialization,Speciation, and Radiation: The Evolutionary Biology of Herbivorous Insects,225-239. https://doi.org/10.1525/california/9780520251328.003.0017
+* **A statistical test for host-parasite coevolution**:Legendre, P., Desdevises, Y., & Bazin, E. (2002). A statistical test for host-parasite coevolution. Systematic Biology, 51(2), 217–234.https://doi.org/10.1080/10635150252899734-**Cophylogeny of Figs, Pollinators, Gallers, and Parasitoids**: Silvieus, S., Clement, W., Weiblen, G. (2008)Cophylogeny of Figs, Pollinators, Gallers, and Parasitoids. Specialization,Speciation, and Radiation: The Evolutionary Biology of Herbivorous Insects,225-239. https://doi.org/10.1525/california/9780520251328.003.0017
 
-* **No Concordant Phylogeographies of the Rose Gall WaspDiplolepis rosae (Hymenoptera, Cynipidae) and Two Associated Parasitoids acrossEurope**: Kohnen, A., Brandl, R. (2012) No Concordant Phylogeographies of theRose Gall Wasp Diplolepis rosae (Hymenoptera, Cynipidae) and Two AssociatedParasitoids across Europe. PLOS ONE. https://doi.org/10.1371/journal.pone.0047156
+* **No Concordant Phylogeographies of the Rose Gall Wasp Diplolepis rosae (Hymenoptera, Cynipidae) and Two Associated Parasitoids acrossEurope**: Kohnen, A., Brandl, R. (2012) No Concordant Phylogeographies of the Rose Gall Wasp Diplolepis rosae (Hymenoptera, Cynipidae) and Two Associated Parasitoids across Europe. PLOS ONE. https://doi.org/10.1371/journal.pone.0047156
 
-* **The parasitoid community of Andricus quercuscalifornicusand its association with gall size, phenology, and location. Biodiversity andConservation**: Joseph, M. B., Gentles, M., & Pearse, I. S. (2011). Theparasitoid community of Andricus quercuscalifornicus and its association withgall size, phenology, and location. Biodiversity and Conservation, 20(1),203–216. https://doi.org/10.1007/s10531-010-9956-0
+* **The parasitoid community of Andricus quercuscalifornicus and its association with gall size, phenology, and location. Biodiversity and Conservation**: Joseph, M. B., Gentles, M., & Pearse, I. S. (2011). The parasitoid community of Andricus quercuscalifornicus and its association with gall size, phenology, and location. Biodiversity and Conservation, 20(1),203–216. https://doi.org/10.1007/s10531-010-9956-0
 
-* **Speciation in Nearctic oak gall wasps is frequentlycorrelated with changes in host plant, host organ, or both**: Ward, A. K. G.,Bagley, R. K., Egan, S. P., Hood, G. R., Ott, J. R., Prior, K. M., Sheikh, S.I., Weinersmith, K. L., Zhang, L., Zhang, Y. M., & Forbes, A. A. (2022).Speciation in Nearctic oak gall wasps is frequently correlated with changes inhost plant, host organ, or both. Evolution, 76(8), 1849–1867. https://doi.org/10.1111/evo.14562
+* **Speciation in Nearctic oak gall wasps is frequently correlated with changes in host plant, host organ, or both**: Ward, A. K. G.,Bagley, R. K., Egan, S. P., Hood, G. R., Ott, J. R., Prior, K. M., Sheikh, S.I., Weinersmith, K. L., Zhang, L., Zhang, Y. M., & Forbes, A. A. (2022).Speciation in Nearctic oak gall wasps is frequently correlated with changes in host plant, host organ, or both. Evolution, 76(8), 1849–1867. https://doi.org/10.1111/evo.14562
 
-* **Diversity, Host Ranges, and Potential Drivers ofSpeciation Among the Inquiline Enemies of Oak Gall Wasps**: Ward, A. K. G.,Sheikh, S. I., & Forbes, A. A. (2020). Diversity, Host Ranges, andPotential Drivers of Speciation Among the Inquiline Enemies of Oak Gall Wasps(Hymenoptera: Cynipidae). Insect Systematics and Diversity, 4(6), 3. https://doi.org/10.1093/isd/ixaa017
+* **Diversity, Host Ranges, and Potential Drivers of Speciation Among the Inquiline Enemies of Oak Gall Wasps**: Ward, A. K. G.,Sheikh, S. I., & Forbes, A. A. (2020). Diversity, Host Ranges, and Potential Drivers of Speciation Among the Inquiline Enemies of Oak Gall Wasps(Hymenoptera: Cynipidae). Insect Systematics and Diversity, 4(6), 3. https://doi.org/10.1093/isd/ixaa017
 
-* **Invertebrate Community Associated with the AsexualGeneration of Bassettia pallida Ashmead (Hymenoptera: Cynipidae)**: Weinersmith,K. L., Forbes, A. A., Ward, A. K., Brandão-Dias, P. F., Zhang, Y. M., &Egan, S. P. (2020). Invertebrate Community Associated with the AsexualGeneration of Bassettia pallida Ashmead (Hymenoptera: Cynipidae). BioRxiv,2020–01.
+* **Invertebrate Community Associated with the Asexual Generation of Bassettia pallida Ashmead (Hymenoptera: Cynipidae)**: Weinersmith,K. L., Forbes, A. A., Ward, A. K., Brandão-Dias, P. F., Zhang, Y. M., &Egan, S. P. (2020). Invertebrate Community Associated with the Asexual Generation of Bassettia pallida Ashmead (Hymenoptera: Cynipidae). BioRxiv,2020–01.
 
-* **Community impacts of anthropogenic disturbance: naturalenemies exploit multiple routes in pursuit of invading herbivore hosts**: Nicholls, J.A., Fuentes-Utrilla, P., Hayward, A. et al. Community impacts ofanthropogenic disturbance: natural enemies exploit multiple routes in pursuitof invading herbivore hosts. BMC Evol Biol 10, 322 (2010). https://doi.org/10.1186/1471-2148-10-322
+* **Community impacts of anthropogenic disturbance: natural enemies exploit multiple routes in pursuit of invading herbivore hosts**: Nicholls, J.A., Fuentes-Utrilla, P., Hayward, A. et al. Community impacts of anthropogenic disturbance: natural enemies exploit multiple routes in pursuit of invading herbivore hosts. BMC Evol Biol 10, 322 (2010). https://doi.org/10.1186/1471-2148-10-322
 
 **Software**
 
@@ -110,15 +116,15 @@ Finally, I just want to add that this was a wonderful course.I walk away feeling
 
 **Packages**
 
-* **Phytools**: Revell LJ (2012). "phytools: An Rpackage for phylogenetic comparative biology (and other things)." *Methodsin Ecology and Evolution*, 3, 217-223.
+* **Phytools**: Revell LJ (2012). "phytools: An Rpackage for phylogenetic comparative biology (and other things)." *Methods in Ecology and Evolution*, 3, 217-223.
 
-* **Geiger**: Harmon L, Weir J, Brock C, Glor R, ChallengerW (2008). "GEIGER: investigating evolutionary radiations."*Bioinformatics*, 24, 129-131.
+* **Geiger**: Harmon L, Weir J, Brock C, Glor R, Challenger W (2008). "GEIGER: investigating evolutionary radiations."*Bioinformatics*, 24, 129-131.
 
-* **PACo**: Balbuena JA, Míguez-Lozano R, Blasco-Costa I(2013) "PACo: A Novel Procrustes Application to CophylogeneticAnalysis." *PLoS ONE* 8(4): e61048. https://doi.org/10.1371/journal.pone.0061048
+* **PACo**: Balbuena JA, Míguez-Lozano R, Blasco-Costa I(2013) "PACo: A Novel Procrustes Application to Cophylogenetic Analysis." *PLoS ONE* 8(4): e61048. https://doi.org/10.1371/journal.pone.0061048
 
-* **lmtest**: Zeileis A, Hothorn T (2002). "DiagnosticChecking in Regression Relationships." *R News*, 2(3), 7-10.https://CRAN.R-project.org/doc/Rnews/.
+* **lmtest**: Zeileis A, Hothorn T (2002). "Diagnostic Checking in Regression Relationships." *R News*, 2(3), 7-10.https://CRAN.R-project.org/doc/Rnews/.
 
-* **corHMM**: Beaulieu, J. M., O’Meara, B. C., &Donoghue, M. J. (2013). Identifying Hidden Rate Changes in the Evolution of aBinary Morphological Character: The Evolution of Plant Habit in CampanulidAngiosperms. *Systematic Biology*, 62(5), 725–737. https://doi.org/10.1093/sysbio/syt034
+* **corHMM**: Beaulieu, J. M., O’Meara, B. C., & Donoghue, M. J. (2013). Identifying Hidden Rate Changes in the Evolution of a Binary Morphological Character: The Evolution of Plant Habit in Campanulid Angiosperms. *Systematic Biology*, 62(5), 725–737. https://doi.org/10.1093/sysbio/syt034
 
 * **Ape**: Paradis E, Schliep K (2019). “ape 5.0: an environment for modern phylogenetics and evolutionary analyses in R.” _Bioinformatics_, **35**, 526-528.
 

@@ -1,4 +1,4 @@
-Evolution of a genus of gall wasp kleptoparasites
+## Evolution of a genus of gall wasp kleptoparasites
 ### Guerin E. Brown<sup>1</sup>, Andrew A. Forbes<sup>1</sup>, & Y. Miles Zhang<sup>2</sup>
 
 <sup>1</sup>The University of Iowa
@@ -33,7 +33,7 @@ We have previously reared wasps of this genus from a phylogenetically diverse se
 
 ## Materials and Methods
 
-**Procrustean Approach to Cophylogeny (PACo)**
+**Procrustean Approach to Cophylogeny (PACo):**
 The first part of analysis uses a "procrustean approach to cophylogeny" (PACo; Balbuena *et al.*, 2013; Hutchinson *et al.*, 2017). This analysis takes the topology of two phylogenetic trees, usually a host and a parasite, and compares the shapes in a graphical plane. This involves shifting coordinates, or values, that define the shapes and superimposing them onto one another (also known as Procrustean superimposition). So, values that graphically define one shape may differ another, but each shape is shifted in proportionally so that both can be compared in the same virtual or theoretical space. Once superimposed, a value of the similarity can be extracted. In PACo, this is the value of cophylogeny that describes congruence between the shape of two phylogenetic trees.
 
 This can be further assessed by completing a ParaFit analysis which provides a value of coevolution for each association (Legendre *et al.*, 2002). By using a shape superimposition to produce a statistic on the congruence of two phylogenies and then utilizing a secondary method to measure the congruence between two ecologically interacting taxa on each phylogeny, we can extract values that define similarity of evolution at multiple levels of complexity. The PACo value defines evolutionary congruence for the two phylogenies whereas ParaFit defines values of individual associations.
@@ -44,7 +44,7 @@ To perform PACo analysis of cophylogeny, we will first begin by accessing the da
 
 Once all three of these matrices have been created, we can complete the PACo analysis of cophylogeny set to 10,000 permutations. Since we are forcing a shape change between two objects, one object may be shifting in a negative direction which will result in a negative eigenvalue, or scalar factor of transformation. Negative eigenvalues cannot be read when performing the ParaFit analysis of coevolution as they do not represent 'real space' so must correct them. To do this, we completed a manual correction using square roots, the "Cailliez" correction, and the "Lingoes" correction (Hutchinson *et al.*, 2017). We chose the most conservative correction from these three to interpret. We extracted values of the residuals from the analysis and plotted them on a bar graph while drawing the line of the median residual as a flat linear value going through the middle of the plot.
 
-**Ancestral State Reconstructions**
+**Ancestral State Reconstructions:**
 The second part of this analysis attempts to visualize how physical traits or characteristics of oak gall wasps might constrain or affect evolution of *Synergus* kleptoparasites. This involves associating a particular trait of an oak gall wasp to its corresponding *Synergus* taxa. For example, we can associate the location an oak gall wasp forms galls on an oak tree (i.e., leaf, stem, bud, or fruit) to the corresponding *Synergus* that parasitizes that oak gall wasp. After completing this for each *Synergus* species, we can perform tests that attempt to simulate how these traits may have arisen at terminal nodes of the phylogeny. These tests utilize models to describe how traits evolve. For example, the "equal rates" (ER) model simulates evolution of the traits using the assumption that the likelihood of changing from one trait to another is uniform for all variations of that trait. Other models exist such as the "all-rates different" (ARD) model where each variation of a trait has a unique probability of being gained or lost evolutionarily. Each model has a corresponding AIC (Akaike Information Criterion) value that determines how close of a fit it is to the expected result at the terminal nodes, or how likely it is to be accurate in predicting them. We performed multiple tests for each trait and chose the model with the lowest AIC value to ensure statistical accuracy. This resulted in the ER models being the most highly supported for ancestral state reconstruction for each trait tested. We completed this for traits such as presence of spines on the gall, hairiness, and oak species.
 
 * * *
